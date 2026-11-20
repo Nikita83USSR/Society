@@ -1,6 +1,6 @@
 // Society frontend. Public browser config only: never put service-role keys or OAuth secrets here.
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_PUBLIC_KEY";
+const SUPABASE_URL = "https://rjjcmagkaitfvjpdrgzp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_hZe9Pu5vCr8ThbVjQa6oiw_wkVR2yIk";
 const OWNER_LOGIN = "Nikita83USSR";
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
