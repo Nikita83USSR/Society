@@ -6,7 +6,8 @@ const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const configured = !!(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY);
 const db = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}) : null;
-let session=null, me=null, ownerProfile=null, selectedFiles=[], cachedPosts=[];
+let session=null, me=null, ownerProfile=null, selectedFiles=[], cachedPosts=[], githubFollowing=null;
+const GITHUB_FOLLOW_TOKEN_KEY="society_github_follow_token";
 const fallbackAvatar="https://github.com/Nikita83USSR.png";
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function toast(s){const el=$("#toast");el.textContent=s;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3200);}
@@ -28,6 +29,98 @@ function updateIdentity(){
   $("#ownerAnalytics")?.classList.toggle("hidden",!isOwner());
 }
 function login(){if(!db)return toast("Нет подключения к Supabase.");const redirectTo=new URL("./",location.href).href;db.auth.signInWithOAuth({provider:"github",options:{redirectTo,scopes:"read:user user:email"}}).then(({error})=>{if(error)toast(error.message);});}
+function requestGitHubFollowPermission(){
+  if(!db)return toast("Нет подключения к Supabase.");
+  const redirectTo=new URL("./",location.href).href;
+  db.auth.signInWithOAuth({provider:"github",options:{redirectTo,scopes:"read:user user:email user:follow"}}).then(({error})=>{if(error)toast("Не удалось запросить разрешение GitHub: "+error.message);});
+}
+async function refreshGitHubFollowWidget(){
+  const button=$("#githubFollowButton"),count=$("#githubFollowerCount");
+  if(!button||!count)return;
+  button.disabled=true;
+  try{
+    const profileResponse=await fetch("https://api.github.com/users/"+encodeURIComponent(OWNER_LOGIN),{headers:{Accept:"application/vnd.github+json"}});
+    if(profileResponse.ok){
+      const profile=await profileResponse.json();
+      count.textContent=Number(profile.followers||0).toLocaleString("ru-RU")+" подписчиков";
+    }else count.textContent="GitHub";
+  }catch{count.textContent="GitHub";}
+  if(isOwner()){
+    button.textContent="Это ваш профиль";
+    button.disabled=true;
+    return;
+  }
+  const token=sessionStorage.getItem(GITHUB_FOLLOW_TOKEN_KEY);
+  if(!session||!token){
+    githubFollowing=null;
+    button.textContent="Follow на GitHub";
+    button.disabled=false;
+    return;
+  }
+  try{
+    const response=await fetch("https://api.github.com/user/following/"+encodeURIComponent(OWNER_LOGIN),{
+      headers:{Accept:"application/vnd.github+json",Authorization:"Bearer "+token}
+    });
+    if(response.status===204)githubFollowing=true;
+    else if(response.status===404)githubFollowing=false;
+    else if(response.status===401){
+      sessionStorage.removeItem(GITHUB_FOLLOW_TOKEN_KEY);
+      githubFollowing=null;
+    }else throw new Error("GitHub API "+response.status);
+    button.textContent=githubFollowing?"Вы подписаны · Unfollow":"Follow на GitHub";
+  }catch(error){
+    console.warn("GitHub follow status:",error);
+    button.textContent="Follow на GitHub";
+  }
+  button.disabled=false;
+}
+async function toggleGitHubFollow(){
+  if(isOwner())return;
+  const token=sessionStorage.getItem(GITHUB_FOLLOW_TOKEN_KEY);
+  if(!session||!token){
+    requestGitHubFollowPermission();
+    return;
+  }
+  const button=$("#githubFollowButton");
+  button.disabled=true;
+  const method=githubFollowing?"DELETE":"PUT";
+  try{
+    const response=await fetch("https://api.github.com/user/following/"+encodeURIComponent(OWNER_LOGIN),{
+      method,
+      headers:{Accept:"application/vnd.github+json",Authorization:"Bearer "+token}
+    });
+    if(response.status===204){
+      githubFollowing=method==="PUT";
+      button.textContent=githubFollowing?"Вы подписаны · Unfollow":"Follow на GitHub";
+      toast(githubFollowing?"Теперь вы подписаны на GitHub-профиль.":"Подписка на GitHub отменена.");
+      await refreshGitHubFollowerCount();
+    }else if(response.status===401){
+      sessionStorage.removeItem(GITHUB_FOLLOW_TOKEN_KEY);
+      githubFollowing=null;
+      toast("Разрешение GitHub устарело. Нажмите Follow ещё раз.");
+      button.textContent="Follow на GitHub";
+    }else{
+      const detail=await response.text();
+      throw new Error("GitHub API "+response.status+(detail?": "+detail.slice(0,180):""));
+    }
+  }catch(error){
+    console.error("GitHub follow action:",error);
+    toast("GitHub не выполнил действие: "+error.message);
+  }
+  button.disabled=false;
+}
+async function refreshGitHubFollowerCount(){
+  const count=$("#githubFollowerCount");
+  if(!count)return;
+  try{
+    const response=await fetch("https://api.github.com/users/"+encodeURIComponent(OWNER_LOGIN),{headers:{Accept:"application/vnd.github+json"}});
+    if(response.ok){
+      const profile=await response.json();
+      count.textContent=Number(profile.followers||0).toLocaleString("ru-RU")+" подписчиков";
+    }
+  }catch(error){console.warn("GitHub follower count:",error);}
+}
+
 async function logout(){if(!db)return;const {error}=await db.auth.signOut();if(error)toast(error.message);else{session=null;me=null;updateIdentity();await loadPosts();toast("Вы вышли из аккаунта.");}}
 async function syncProfile(){
   if(!session?.user)return;
@@ -262,7 +355,7 @@ async function init(){
   loadProjects();
   if(!configured){$("#setupNotice").classList.remove("hidden");return;}
   recordVisit();
-  db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();},0);});
+  db.auth.onAuthStateChange((_event,nextSession)=>{if(nextSession?.provider_token){try{sessionStorage.setItem(GITHUB_FOLLOW_TOKEN_KEY,nextSession.provider_token);}catch(e){console.warn("GitHub provider token storage:",e);}}if(_event==="SIGNED_OUT"){try{sessionStorage.removeItem(GITHUB_FOLLOW_TOKEN_KEY);}catch{}}setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();await refreshGitHubFollowWidget();},0);});
   const {data:{session:current},error}=await db.auth.getSession();
   if(error&&isExpiredAuthError(error)){
     console.warn("Stored Supabase session has expired; clearing local session.",error.message);
@@ -270,10 +363,11 @@ async function init(){
   }
   session=error&&isExpiredAuthError(error)?null:current;me=session?profileOf(session.user):null;
   if(session)await syncProfile();
-  await loadOwner();updateIdentity();await loadPosts();await loadAnalytics();
+  await loadOwner();updateIdentity();await loadPosts();await loadAnalytics();await refreshGitHubFollowWidget();
 }
 $("#loginButton").addEventListener("click",login);
 $("#logoutButton").addEventListener("click",logout);
+$("#githubFollowButton")?.addEventListener("click",toggleGitHubFollow);
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))login();});
 $("#postForm").addEventListener("submit",publish);
 $("#posts").addEventListener("click",postAction);
