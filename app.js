@@ -67,13 +67,14 @@ function richText(value){let out="",last=0;const source=String(value||"");const 
 function postMarkup(p){
   const comments=(p.comments||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).map(c=>{
     const a=c.profiles||{};
-    return '<div class="comment"><img src="'+esc(a.avatar_url||"https://github.com/identicons/app.png")+'" alt=""><div class="comment-content"><b>'+esc(a.display_name||a.github_login||"Пользователь")+'</b><span class="comment-login">@'+esc(a.github_login||"github-user")+'</span><div>'+richText(c.body)+'</div></div></div>';
+    const anonymous=!c.author_id;
+    return '<div class="comment"><img src="'+esc(anonymous?"https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp":a.avatar_url||"https://github.com/identicons/app.png")+'" alt=""><div class="comment-content"><b>'+esc(anonymous?"Аноним":a.display_name||a.github_login||"Пользователь")+'</b>'+(anonymous?"":'<span class="comment-login">@'+esc(a.github_login||"github-user")+'</span>')+'<div>'+richText(c.body)+'</div></div></div>';
   }).join("");
   const imgs=(p.image_urls||[]).map(url=>'<img src="'+esc(url)+'" alt="Изображение публикации" loading="lazy">').join("");
   const urls=[...findLinks(p.body),...(p.link_url?[p.link_url]:[])];
   const link=urls.length?linkPreview(urls[0]):"";
-  const canComment=!!session;
-  return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(canComment?"Написать комментарий…":"Войдите через GitHub, чтобы комментировать")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button data-action="delete">Удалить запись</button></div>':"")+'</article>';
+  const canComment=true;
+  return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button data-action="delete">Удалить запись</button></div>':"")+'</article>';
 }
 async function loadPosts(){
   if(!db){$("#setupNotice").classList.remove("hidden");return;}
@@ -123,13 +124,12 @@ async function publish(e){
 async function addComment(e){
   if(!e.target.matches(".comment-form"))return;
   e.preventDefault();
-  if(!session)return toast("Войдите через GitHub, чтобы комментировать.");
   const article=e.target.closest("[data-post]"),input=e.target.querySelector("input"),body=input.value.trim();
   if(!body)return;
   const button=e.target.querySelector("button");button.disabled=true;
-  const {error}=await db.from("comments").insert({post_id:article.dataset.post,author_id:session.user.id,body});
+  const {error}=await db.from("comments").insert({post_id:article.dataset.post,author_id:session?.user?.id||null,body});
   if(error){toast("Не удалось добавить комментарий: "+error.message);button.disabled=false;}
-  else{await loadPosts();toast("Комментарий добавлен.");}
+  else{await loadPosts();toast(session?"Комментарий добавлен.":"Комментарий опубликован анонимно.");}
 }
 async function postAction(e){
   const button=e.target.closest("[data-action='delete']");if(!button)return;
