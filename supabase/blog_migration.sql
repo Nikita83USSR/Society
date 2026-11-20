@@ -22,3 +22,19 @@ drop policy if exists "Signed-in users comment" on public.comments;
 create policy "Signed-in users comment" on public.comments
 for insert to authenticated
 with check (author_id = auth.uid());
+
+-- Shared public blog banner setting.
+create table if not exists public.site_settings (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.site_settings enable row level security;
+drop policy if exists "Public can read site settings" on public.site_settings;
+create policy "Public can read site settings" on public.site_settings
+for select to anon, authenticated using (true);
+drop policy if exists "Blog owner manages site settings" on public.site_settings;
+create policy "Blog owner manages site settings" on public.site_settings
+for all to authenticated
+using (public.is_society_owner())
+with check (public.is_society_owner());
