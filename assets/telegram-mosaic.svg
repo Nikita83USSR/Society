@@ -1,20 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
-<g fill="none" stroke="#665ab6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".30">
-<!-- compact telegram-like tech doodle tile, no hearts -->
-<path d="M18 18h30a6 6 0 0 1 6 6v18a6 6 0 0 1-6 6H31l-9 7v-7h-4a6 6 0 0 1-6-6V24a6 6 0 0 1 6-6z"/>
-<path d="M77 24l19-8-7 25-7-10-10 3z"/>
-<path d="M130 16l6 13 13 6-13 6-6 13-6-13-13-6 13-6z"/>
-<path d="M184 22h24v24h-24zM190 29l5 5-5 5m12-10l-5 5 5 5"/>
-<circle cx="31" cy="105" r="14"/><path d="M22 105h18M31 96v18"/>
-<path d="M75 82l22 18-22 18-22-18z"/>
-<path d="M135 79q-9 12-18 24t-18 24l21-9 3 15 15-32z"/>
-<path d="M186 88l18 18-18 18-18-18zM186 88v36m-18-18h36"/>
-<path d="M16 160l10-10 10 10-10 10zM26 150v20"/>
-<path d="M68 150h30v24H68z"/><path d="M77 159l5 6 8-10"/>
-<path d="M130 154a18 18 0 1 0 0 36 18 18 0 0 0 0-36z"/><path d="M120 172h20m-10-10v20"/>
-<path d="M185 154l7 13 13 7-13 7-7 13-7-13-13-7 13-7z"/>
-<path d="M18 213h26m-13-13v26"/>
-<path d="M76 205l8 18 18 8-18 8-8 18-8-18-18-8 18-8z" transform="translate(0 -30)"/>
-<path d="M144 215l12-10 12 10-12 10z"/><path d="M156 205v20"/>
-<path d="M198 206l18 0m-9-9v18"/>
-</g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+<!-- vaporwave / retro-futurist seamless icon tapestry -->
+<g fill="none" stroke="#7561c9" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" opacity=".42">
+<!-- staggered chat / tech / nostalgic motifs -->
+<path d="M14 14h39a7 7 0 0 1 7 7v22a7 7 0 0 1-7 7H29l-9 8v-8h-6a7 7 0 0 1-7-7V21a7 7 0 0 1 7-7z"/>
+<path d="M90 17l25-10-10 30-9-12-9 3z"/>
+<path d="M153 12l8 17 17 8-17 8-8 17-8-17-17-8 17-8z"/>
+<path d="M220 16h34v34h-34zM228 25l9 8-9 8m18-16l-9 8 9 8"/>
+<path d="M284 18l13 13-13 13-13-13zM284 18v26m-13-13h26"/>
+<!-- mid top -->
+<path d="M22 90l24-18 24 18-24 18zM46 72v36"/>
+<path d="M105 77q-14 20-29 40t-29 40l33-15 4 21 23-43z"/>
+<circle cx="174" cy="105" r="17"/><path d="M162 105h24m-12-12v24"/>
+<path d="M227 81l8 17 17 8-17 8-8 17-8-17-17-8 17-8z"/>
+<path d="M288 82h21v21h-21zM293 88l5 5-5 5"/>
+<!-- central dense layer -->
+<path d="M13 163h42v30H13z"/><path d="M22 174l9 9 16-18"/>
+<path d="M85 154l18 18-18 18-18-18z"/><path d="M85 154v36m-18-18h36"/>
+<path d="M138 151l8 17 17 8-17 8-8 17-8-17-17-8 17-8z"/>
+<path d="M205 157c-13-20-36 4-18 22l18 18 18-18c18-18-5-42-18-22z"/>
+<path d="M273 150l-18 18 9 8-8 19 24-17-9-8z"/>
+<!-- bottom motifs -->
+<path d="M18 238l12-12 12 12-12 12zM30 226v24"/>
+<path d="M84 235h36v36H84zM92 244l9 9-9 9m18-18l-9 9 9 9"/>
+<path d="M158 231l-13 19 13 9-9 20 31-22-13-9z"/>
+<path d="M216 235l9 17 17 8-17 8-9 17-9-17-17-8 17-8z"/>
+<circle cx="290" cy="252" r="16"/><path d="M279 252h22m-11-11v22"/>
+<!-- extra small diamonds/sparkles for packed texture -->
+<path d="M64 290l5-10 5 10-5 10zM140 78l5-10 5 10-5 10zM254 118l5-10 5 10-5 10zM117 208l5-10 5 10-5 10zM192 285l5-10 5 10-5 10z"/>
+</g>
+<!-- neon sun accents -->
+<g fill="none" stroke="#d27fc9" stroke-width="1.3" opacity=".3">
+<circle cx="62" cy="139" r="20"/><path d="M42 139h40M62 119v40"/>
+<path d="M252 217l10 10 10-10-10-10z"/>
+</g>
+</svg>
