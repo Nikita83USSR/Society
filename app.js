@@ -75,7 +75,9 @@ function postMarkup(p){
   const urls=[...findLinks(p.body),...(p.link_url?[p.link_url]:[])];
   const link=urls.length?linkPreview(urls[0]):"";
   const canComment=true;
-  const shareUrl=postShareUrl(p),shareText=(p.body||"Новая публикация в блоге Никиты").slice(0,180);\n  const share='<div class="post-share"><span>Поделиться:</span><a class="share-vk" href="https://vk.com/share.php?url='+encodeURIComponent(shareUrl)+'&title='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">VK</a><a class="share-tg" href="https://t.me/share/url?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">Telegram</a><a class="share-max" href="https://max.ru/:share?text='+encodeURIComponent(shareText+"\\n"+shareUrl)+'" target="_blank" rel="noopener noreferrer">MAX</a><a class="share-x" href="https://twitter.com/intent/tweet?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">X</a><button type="button" class="share-instagram" data-action="instagram-share" data-post="'+esc(p.id)+'">Instagram</button></div>';\n  return '<article class="post" id="post-'+esc(p.id)+'" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button type="button" data-action="edit">Редактировать</button><button type="button" data-action="delete">Удалить запись</button></div>':"")+'</article>';
+  const shareUrl=postShareUrl(p),shareText=(p.body||"Новая публикация в блоге Никиты").slice(0,180);
+  const share='<div class="post-share"><span>Поделиться:</span><a class="share-vk" href="https://vk.com/share.php?url='+encodeURIComponent(shareUrl)+'&title='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">VK</a><a class="share-tg" href="https://t.me/share/url?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">Telegram</a><a class="share-max" href="https://max.ru/:share?text='+encodeURIComponent(shareText+" "+shareUrl)+'" target="_blank" rel="noopener noreferrer">MAX</a><a class="share-x" href="https://twitter.com/intent/tweet?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">X</a><button type="button" class="share-instagram" data-action="instagram-share">Instagram</button></div>';
+  return '<article class="post" id="post-'+esc(p.id)+'" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+share+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+' >Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button type="button" data-action="edit">Редактировать</button><button type="button" data-action="delete">Удалить запись</button></div>':"")+'</article>';
 }
 async function loadProjects(){
   const box=$("#projectsList"); if(!box)return;
@@ -102,7 +104,9 @@ function renderPosts(){
   const visible=cachedPosts.filter(p=>!term||(p.body||"").toLocaleLowerCase("ru").includes(term));
   $("#posts").innerHTML=visible.map(postMarkup).join("");
   $("#postCount").textContent=visible.length+" записей";
-  $("#emptyState").classList.toggle("hidden",visible.length>0);\n  const requested=new URLSearchParams(location.search).get("post");if(requested){const target=document.getElementById("post-"+requested);if(target)setTimeout(()=>target.scrollIntoView({behavior:"smooth",block:"start"}),80);}
+  $("#emptyState").classList.toggle("hidden",visible.length>0);
+  const requested=new URLSearchParams(location.search).get("post");
+  if(requested){const target=document.getElementById("post-"+requested);if(target)setTimeout(()=>target.scrollIntoView({behavior:"smooth",block:"start"}),80);}
 }
 async function uploadImages(){
   const urls=[];
@@ -197,7 +201,8 @@ $("#logoutButton").addEventListener("click",logout);
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))login();});
 $("#postForm").addEventListener("submit",publish);
 $("#posts").addEventListener("click",postAction);
-$("#posts").addEventListener("submit",addComment);\n$("#posts").addEventListener("submit",savePostEdit);
+$("#posts").addEventListener("submit",addComment);
+$("#posts").addEventListener("submit",savePostEdit);
 $("#postText").addEventListener("input",()=>$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length));
 $("#bannerInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)changeBanner(file);e.target.value="";});
 $("#imageInput").addEventListener("change",e=>{
