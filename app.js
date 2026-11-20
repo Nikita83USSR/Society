@@ -57,10 +57,23 @@ async function changeBanner(file){
   $("#blogBanner").style.backgroundImage='url("'+url+'")';
   toast("Баннер обновлён для всех посетителей.");
 }
+function isExpiredAuthError(error){
+  const message=String(error?.message||error?.error_description||error||"").toLowerCase();
+  return /jwt expired|token.{0,30}expired|expired.{0,30}token|invalid jwt|refresh token.{0,30}(invalid|not found|expired)/i.test(message);
+}
+async function clearExpiredLocalSession(){
+  try{await db.auth.signOut({scope:"local"});}catch(e){console.warn("Expired session cleanup:",e?.message||e);}
+  session=null;me=null;updateIdentity();
+}
 async function loadOwner(){
-  const {data,error}=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();
-  if(error)console.warn("Owner profile:",error.message);
-  ownerProfile=data||ownerProfile||{github_login:OWNER_LOGIN,display_name:"Никита",avatar_url:fallbackAvatar,profile_url:"https://github.com/"+OWNER_LOGIN};
+  let result=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();
+  if(result.error&&isExpiredAuthError(result.error)){
+    console.warn("Expired Supabase session; retrying public profile request.");
+    await clearExpiredLocalSession();
+    result=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();
+  }
+  if(result.error)console.warn("Owner profile:",result.error.message);
+  ownerProfile=result.data||ownerProfile||{github_login:OWNER_LOGIN,display_name:"Никита",avatar_url:fallbackAvatar,profile_url:"https://github.com/"+OWNER_LOGIN};
   updateIdentity();
 }
 function findLinks(text){return [...new Set((String(text||"").match(/https?:\/\/[^\s<>"']+/gi)||[]).map(x=>x.replace(/[),.!?;:]+$/,"")))];}
@@ -96,7 +109,15 @@ async function loadPosts(){
   await loadOwner();
   await loadBanner();
   if(!ownerProfile?.id){$("#posts").innerHTML='<div class="empty-state">Профиль автора пока не найден. Войдите в блог через GitHub под аккаунтом автора.</div>';$("#postCount").textContent="0 записей";return;}
-  const {data,error}=await db.from("posts").select("*,profiles!posts_author_id_fkey(*),comments(*,profiles!comments_author_id_fkey(*))").eq("author_id",ownerProfile.id).order("created_at",{ascending:false}).limit(100);
+  const queryPosts=()=>db.from("posts").select("*,profiles!posts_author_id_fkey(*),comments(*,profiles!comments_author_id_fkey(*))").eq("author_id",ownerProfile.id).order("created_at",{ascending:false}).limit(100);
+  let {data,error}=await queryPosts();
+  if(error&&isExpiredAuthError(error)){
+    console.warn("Posts request rejected by expired JWT; clearing stale local session and retrying.");
+    await clearExpiredLocalSession();
+    await loadOwner();
+    if(!ownerProfile?.id)return;
+    ({data,error}=await queryPosts());
+  }
   if(error){console.error("Blog posts load:",error);toast("Не удалось загрузить записи: "+error.message);return;}
   cachedPosts=data||[];
   renderPosts();
@@ -243,8 +264,11 @@ async function init(){
   recordVisit();
   db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();},0);});
   const {data:{session:current},error}=await db.auth.getSession();
-  if(error)console.warn("Session restore:",error.message);
-  session=current;me=session?profileOf(session.user):null;
+  if(error&&isExpiredAuthError(error)){
+    console.warn("Stored Supabase session has expired; clearing local session.",error.message);
+    await clearExpiredLocalSession();
+  }
+  session=error&&isExpiredAuthError(error)?null:current;me=session?profileOf(session.user):null;
   if(session)await syncProfile();
   await loadOwner();updateIdentity();await loadPosts();await loadAnalytics();
 }
