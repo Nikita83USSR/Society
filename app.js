@@ -87,6 +87,7 @@ async function toggleGitHubFollow(){
   try{
     const response=await fetch("https://api.github.com/user/following/"+encodeURIComponent(OWNER_LOGIN),{
       method,
+      body:method==="PUT"?"":undefined,
       headers:{Accept:"application/vnd.github+json",Authorization:"Bearer "+token}
     });
     if(response.status===204){
