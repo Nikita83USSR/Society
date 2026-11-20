@@ -2,26 +2,26 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#4b6f98"><title>Блог Никиты</title>
+<meta name="theme-color" content="#4b6f98"><title>Блог · Никита Маркин</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="topbar"><div class="topbar-inner">
-  <a class="brand" href="#"><span class="brand-mark">N</span> мой блог</a>
+  <a class="brand" href="#"><span class="brand-mark">N</span> Блог</a>
   <label class="top-search">⌕ <input id="searchInput" placeholder="Поиск по записям"></label>
   <div class="top-user"><span id="topUserName">Гость · чтение</span><img id="topAvatar" class="tiny-avatar" src="https://github.com/Nikita83USSR.png" alt=""></div>
 </div></div>
 <div class="layout blog-layout">
 <aside class="left-column">
   <div class="side-profile"><img id="sideAvatar" class="profile-avatar" src="https://github.com/Nikita83USSR.png" alt=""><b id="sideName">Никита</b><span class="blog-author-label">Автор блога</span><a href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub профиль</a></div>
+  <section class="projects-panel"><h3>Мои проекты</h3><div id="projectsList" class="projects-list"><div class="projects-loading">Загрузка проектов…</div></div><a class="projects-all" href="https://github.com/Nikita83USSR?tab=repositories" target="_blank" rel="noopener">Все репозитории ↗</a></section>
   <nav class="main-nav"><button class="nav active" data-view="wall">▤ <span>Главная</span></button></nav>
-  <div class="side-divider"></div>
-  <a class="side-link" href="https://github.com/Nikita83USSR/Society" target="_blank" rel="noopener">⌘ Исходный код</a>
+
   <div class="side-bottom"><button id="loginButton" class="login-button">Войти через GitHub</button><button id="logoutButton" class="text-button hidden">Выйти из аккаунта</button></div>
 </aside>
 <main class="center-column">
   <section id="wallView">
-    <div class="page-heading"><div><h1>Блог Никиты</h1><p>Мои записи, заметки и обсуждения</p></div><span class="online-dot">● открыт для чтения</span></div>
+    <div class="page-heading"><div><h1>Добро пожаловать на мою страницу</h1><p>Мои заметки, проекты и публикации</p></div><span class="online-dot">● открыт для чтения</span></div>
     <div class="profile-cover" id="blogBanner"><div class="cover-caption">PERSONAL BLOG</div><label id="bannerEdit" class="banner-edit hidden">Изменить баннер<input id="bannerInput" type="file" accept="image/*" hidden></label></div>
     <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="https://github.com/Nikita83USSR.png" alt=""><div class="profile-data"><h2 id="wallName">Никита</h2><div class="muted">@Nikita83USSR</div><div class="admin-role">Автор блога</div><div class="profile-bio">Личные заметки, проекты, мысли и обсуждения</div></div><a class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
     <form id="postForm" class="composer hidden">
@@ -38,8 +38,7 @@
 </main>
 <aside class="right-column">
   <div class="right-card"><b>О блоге</b><p>Личный блог. Здесь публикует только автор, а читатели могут обсуждать записи в комментариях.</p><div class="right-tags"><span>Блог</span><span>Заметки</span><span>Обсуждения</span></div></div>
-  <div class="right-card"><b>Участие</b><p>Войдите через GitHub, чтобы комментировать публикации. Личные сообщения и публикации читателей отключены.</p></div>
-  <div class="right-footer">Блог Никиты · <span id="footerYear"></span><br><a href="https://github.com/Nikita83USSR/Society">Исходный код</a></div>
+  <div class="right-footer">Блог · <span id="footerYear"></span></div>
 </aside>
 </div>
 <div id="toast" class="toast" role="status"></div>
