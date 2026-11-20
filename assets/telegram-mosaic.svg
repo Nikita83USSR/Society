@@ -1,12 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
-<g fill="none" stroke="#776bc2" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" opacity=".25">
-<path d="M32 32h48a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8H52l-12 9v-9h-8a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8z"/>
-<path d="M190 20l8 18 18 8-18 8-8 18-8-18-18-8 18-8z"/>
-<circle cx="140" cy="142" r="22"/><path d="M130 142h20m-10-10v20"/>
-<path d="M220 140c-13-18-35 3-18 20l18 17 18-17c18-17-5-38-18-20z"/>
-<path d="M36 200l24-20 24 20-24 20zM54 180v40"/>
-<path d="M165 215c-5-22 16-36 27-18 12-18 33-4 27 18-5 18-27 29-27 29s-22-11-27-29z"/>
-<path d="M260 75l-20 18 10 8-8 18 26-18-10-8z"/>
-<path d="M108 250q20-30 40 0t-40 0z"/><circle cx="130" cy="248" r="3" fill="#776bc2"/>
-<path d="M232 250h36m-18-18v36"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+<g fill="none" stroke="#665ab6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".30">
+<!-- compact telegram-like tech doodle tile, no hearts -->
+<path d="M18 18h30a6 6 0 0 1 6 6v18a6 6 0 0 1-6 6H31l-9 7v-7h-4a6 6 0 0 1-6-6V24a6 6 0 0 1 6-6z"/>
+<path d="M77 24l19-8-7 25-7-10-10 3z"/>
+<path d="M130 16l6 13 13 6-13 6-6 13-6-13-13-6 13-6z"/>
+<path d="M184 22h24v24h-24zM190 29l5 5-5 5m12-10l-5 5 5 5"/>
+<circle cx="31" cy="105" r="14"/><path d="M22 105h18M31 96v18"/>
+<path d="M75 82l22 18-22 18-22-18z"/>
+<path d="M135 79q-9 12-18 24t-18 24l21-9 3 15 15-32z"/>
+<path d="M186 88l18 18-18 18-18-18zM186 88v36m-18-18h36"/>
+<path d="M16 160l10-10 10 10-10 10zM26 150v20"/>
+<path d="M68 150h30v24H68z"/><path d="M77 159l5 6 8-10"/>
+<path d="M130 154a18 18 0 1 0 0 36 18 18 0 0 0 0-36z"/><path d="M120 172h20m-10-10v20"/>
+<path d="M185 154l7 13 13 7-13 7-7 13-7-13-13-7 13-7z"/>
+<path d="M18 213h26m-13-13v26"/>
+<path d="M76 205l8 18 18 8-18 8-8 18-8-18-18-8 18-8z" transform="translate(0 -30)"/>
+<path d="M144 215l12-10 12 10-12 10z"/><path d="M156 205v20"/>
+<path d="M198 206l18 0m-9-9v18"/>
 </g></svg>
