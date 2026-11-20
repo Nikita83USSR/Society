@@ -22,6 +22,7 @@ function updateIdentity(){
   $("#loginButton").classList.toggle("hidden",!!session);
   $("#logoutButton").classList.toggle("hidden",!session);
   $("#postForm").classList.toggle("hidden",!isOwner());
+  $("#bannerEdit").classList.toggle("hidden",!isOwner());
   $("#ownerNotice").classList.toggle("hidden",!isOwner());
   $("#readerNotice").classList.toggle("hidden",!!session);
 }
@@ -35,6 +36,24 @@ async function syncProfile(){
   me=p;
   if(isOwner())ownerProfile=p;
   updateIdentity();
+}
+async function loadBanner(){
+  const {data,error}=await db.from("site_settings").select("value").eq("key","banner_url").maybeSingle();
+  if(error){console.warn("Banner setting:",error.message);return;}
+  if(data?.value)$("#blogBanner").style.backgroundImage='url("'+data.value.replace(/["\\\\]/g,"")+'")';
+}
+async function changeBanner(file){
+  if(!isOwner()||!file)return;
+  if(!file.type.startsWith("image/")||file.size>12*1024*1024)return toast("Выберите изображение до 12 МБ.");
+  const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase();
+  const path=session.user.id+"/banner-"+Date.now()+"."+ext;
+  const {error:uploadError}=await db.storage.from("society-images").upload(path,file,{contentType:file.type,upsert:true});
+  if(uploadError)return toast("Не удалось загрузить баннер: "+uploadError.message);
+  const url=db.storage.from("society-images").getPublicUrl(path).data.publicUrl;
+  const {error}=await db.from("site_settings").upsert({key:"banner_url",value:url,updated_at:new Date().toISOString()},{onConflict:"key"});
+  if(error)return toast("Файл загружен, но настройку сохранить не удалось: "+error.message);
+  $("#blogBanner").style.backgroundImage='url("'+url+'")';
+  toast("Баннер обновлён для всех посетителей.");
 }
 async function loadOwner(){
   const {data,error}=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();
@@ -59,6 +78,7 @@ function postMarkup(p){
 async function loadPosts(){
   if(!db){$("#setupNotice").classList.remove("hidden");return;}
   await loadOwner();
+  await loadBanner();
   if(!ownerProfile?.id){$("#posts").innerHTML='<div class="empty-state">Профиль автора пока не найден. Войдите в блог через GitHub под аккаунтом автора.</div>';$("#postCount").textContent="0 записей";return;}
   const {data,error}=await db.from("posts").select("*,profiles!posts_author_id_fkey(*),comments(*,profiles!comments_author_id_fkey(*))").eq("author_id",ownerProfile.id).order("created_at",{ascending:false}).limit(100);
   if(error){console.error("Blog posts load:",error);toast("Не удалось загрузить записи: "+error.message);return;}
@@ -137,6 +157,7 @@ $("#postForm").addEventListener("submit",publish);
 $("#posts").addEventListener("click",postAction);
 $("#posts").addEventListener("submit",addComment);
 $("#postText").addEventListener("input",()=>$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length));
+$("#bannerInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)changeBanner(file);e.target.value="";});
 $("#imageInput").addEventListener("change",e=>{
   selectedFiles=[...e.target.files].slice(0,5);$("#imagePreview").innerHTML="";
   selectedFiles.forEach(file=>{const img=document.createElement("img");img.src=URL.createObjectURL(file);$("#imagePreview").append(img);});
