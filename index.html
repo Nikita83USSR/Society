@@ -2,55 +2,48 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#4b6f98"><title>Society — люди и разговоры</title>
+<meta name="theme-color" content="#4b6f98"><title>Блог Никиты</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="topbar"><div class="topbar-inner"><a class="brand" href="#"><span class="brand-mark">S</span> society</a><label class="top-search">⌕ <input id="searchInput" placeholder="Поиск по Society"></label><div class="top-user"><span id="topUserName">Гость</span><img id="topAvatar" class="tiny-avatar" src="assets/default-avatar.svg" alt=""></div></div></div>
-<div class="layout">
+<div class="topbar"><div class="topbar-inner">
+  <a class="brand" href="#"><span class="brand-mark">N</span> мой блог</a>
+  <label class="top-search">⌕ <input id="searchInput" placeholder="Поиск по записям"></label>
+  <div class="top-user"><span id="topUserName">Гость · чтение</span><img id="topAvatar" class="tiny-avatar" src="https://github.com/Nikita83USSR.png" alt=""></div>
+</div></div>
+<div class="layout blog-layout">
 <aside class="left-column">
-  <div class="side-profile"><img id="sideAvatar" class="profile-avatar" src="assets/default-avatar.svg" alt=""><b id="sideName">Гость</b><a id="profileLink" href="#" target="_blank" rel="noopener">Мой профиль GitHub</a></div>
-  <nav class="main-nav">
-    <button class="nav active" data-view="wall">▣ <span>Моя страница</span></button>
-    <button class="nav" data-view="feed">▤ <span>Новости</span></button>
-    <button class="nav" data-view="messages">✉ <span>Мои сообщения</span><i id="unreadBadge" class="unread hidden">0</i></button>
-    <button class="nav" data-view="saved">☆ <span>Закладки</span></button>
-    <button class="nav" data-view="users">♙ <span>Пользователи</span></button>
-  </nav>
+  <div class="side-profile"><img id="sideAvatar" class="profile-avatar" src="https://github.com/Nikita83USSR.png" alt=""><b id="sideName">Никита</b><span class="blog-author-label">Автор блога</span><a href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub профиль</a></div>
+  <nav class="main-nav"><button class="nav active" data-view="wall">▤ <span>Главная</span></button></nav>
   <div class="side-divider"></div>
-  <a class="side-link" href="https://github.com/Nikita83USSR/Society" target="_blank" rel="noopener">⌘ Проект на GitHub</a>
-  <div class="side-bottom"><button id="loginButton" class="login-button">Войти через GitHub</button><button id="logoutButton" class="text-button hidden">Выйти</button></div>
+  <a class="side-link" href="https://github.com/Nikita83USSR/Society" target="_blank" rel="noopener">⌘ Исходный код</a>
+  <div class="side-bottom"><button id="loginButton" class="login-button">Войти через GitHub</button><button id="logoutButton" class="text-button hidden">Выйти из аккаунта</button></div>
 </aside>
 <main class="center-column">
   <section id="wallView">
-    <div class="page-heading"><div><h1 id="pageTitle">Моя страница</h1><p>Твоя территория в Society</p></div><span class="online-dot">● онлайн</span></div>
-    <div class="profile-cover"><div class="cover-caption">SOCIETY COMMUNITY</div></div>
-    <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="assets/default-avatar.svg" alt=""><div class="profile-data"><h2 id="wallName">Гость</h2><div id="wallHandle" class="muted">@гость</div><div id="wallRole" class="admin-role hidden">Администратор Society</div><div id="wallBio" class="profile-bio">Социальная сеть на базе GitHub</div></div><a id="githubProfile" class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
-    <div class="profile-tabs"><button class="tab active">Стена</button><button class="tab" data-view="feed">Новости</button><button class="tab" data-view="messages">Сообщения</button></div>
+    <div class="page-heading"><div><h1>Блог Никиты</h1><p>Мои записи, заметки и обсуждения</p></div><span class="online-dot">● открыт для чтения</span></div>
+    <div class="profile-cover"><div class="cover-caption">PERSONAL BLOG</div></div>
+    <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="https://github.com/Nikita83USSR.png" alt=""><div class="profile-data"><h2 id="wallName">Никита</h2><div class="muted">@Nikita83USSR</div><div class="admin-role">Автор блога</div><div class="profile-bio">Личные заметки, проекты, мысли и обсуждения</div></div><a class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
     <form id="postForm" class="composer hidden">
-      <div class="composer-title"><b>Что у вас нового?</b><span id="composerHint">Запись на стене</span></div>
-      <textarea id="postText" maxlength="5000" rows="3" placeholder="Поделитесь новостью или мыслью..."></textarea>
+      <div class="composer-title"><b>Новая запись</b><span>Публикация от автора блога</span></div>
+      <textarea id="postText" maxlength="10000" rows="4" placeholder="О чём хотите рассказать?"></textarea>
       <div id="imagePreview" class="image-preview hidden"></div>
-      <div class="composer-tools"><label class="tool-button">▧ Фото<input id="imageInput" type="file" accept="image/*" multiple hidden></label><span id="fileNames" class="muted file-names"></span><button type="submit" id="publishButton" class="blue-button" disabled>Отправить</button></div>
+      <div class="composer-tools"><label class="tool-button">▧ Добавить фото<input id="imageInput" type="file" accept="image/*" multiple hidden></label><span id="fileNames" class="muted file-names"></span><button type="submit" id="publishButton" class="blue-button" disabled>Опубликовать</button></div>
     </form>
-    <div id="postAuthNotice" class="auth-notice"><b>Добро пожаловать в Society!</b><span>Публиковать записи, добавлять фотографии и участвовать в обсуждениях можно после входа через GitHub.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div>
-    <div class="section-title"><b id="streamTitle">Записи на стене</b><span id="postCount">0 записей</span></div>
-    <div id="posts" class="posts"></div><div id="emptyState" class="empty-state hidden">На стене пока нет записей. Будьте первым!</div>
+    <div id="ownerNotice" class="auth-notice hidden"><b>Режим автора</b><span>Вы вошли как владелец блога. Здесь можно публиковать записи и фотографии.</span></div>
+    <div id="readerNotice" class="auth-notice"><b>Добро пожаловать в блог!</b><span>Записи доступны всем. Чтобы оставить комментарий, войдите через GitHub. Публиковать записи может только автор блога.</span><button type="button" class="login-button" data-login>Войти через GitHub и комментировать</button></div>
+    <div class="section-title"><b>Публикации</b><span id="postCount">Загрузка…</span></div>
+    <div id="posts" class="posts"></div><div id="emptyState" class="empty-state hidden">Пока нет публикаций.</div>
   </section>
-  <section id="feedView" class="hidden"><div class="page-heading"><div><h1>Новости</h1><p>Последние публикации Society</p></div></div><div id="feedPosts" class="posts"></div></section>
-  <section id="messagesView" class="hidden"><div class="page-heading"><div><h1>Мои сообщения</h1><p>Личные разговоры</p></div></div><div id="messagesAuthNotice" class="auth-notice"><b>Личные сообщения доступны участникам</b><span>Войдите через GitHub, чтобы написать владельцу Society или продолжить переписку.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="messagesLayout" class="messages-layout hidden"><div id="dialogs" class="dialogs"><div class="empty-state">Войдите через GitHub, чтобы открыть сообщения.</div></div><div class="chat-panel"><div id="chatHeader" class="chat-header">Выберите диалог</div><div id="chatMessages" class="chat-messages"></div><form id="messageForm" class="message-form"><input id="messageText" maxlength="3000" placeholder="Написать сообщение..." disabled><button class="blue-button" disabled>Отправить</button></form></div></div></section>
-  <section id="savedView" class="hidden"><div class="page-heading"><div><h1>Закладки</h1><p>Сохранённые публикации</p></div></div><div id="savedAuthNotice" class="auth-notice"><b>Ваши закладки</b><span>Войдите через GitHub, чтобы сохранять интересные публикации и просматривать их здесь.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="savedPosts" class="posts"></div></section>
-  <section id="usersView" class="hidden"><div class="page-heading"><div><h1>Пользователи Society</h1><p>Участники, которые хотя бы однажды входили в сеть</p></div><span id="usersCount" class="muted"></span></div><div id="usersList" class="users-list"></div></section>
 </main>
 <aside class="right-column">
-  <div class="right-card"><b>Навигация</b><a href="#" data-view="wall">Моя страница</a><a href="#" data-view="feed">Новости</a><a href="#" data-view="messages">Сообщения</a><a href="#" data-view="saved">Закладки</a><a href="#" data-view="users">Пользователи</a></div>
-  <div class="right-card"><b>О Society</b><p>Независимая социальная площадка. Старый добрый формат социальных сетей — с людьми, записями и разговорами.</p><div class="right-tags"><span>Сообщество</span><span>Общение</span><span>GitHub</span></div></div>
-  <div class="right-card"><b>Правила площадки</b><p>Уважайте собеседников. Не публикуйте чужие личные данные и запрещённый контент.</p></div>
-  <div class="right-footer">Society · ранняя версия<br><a href="https://github.com/Nikita83USSR/Society">Исходный код</a></div>
+  <div class="right-card"><b>О блоге</b><p>Личный блог. Здесь публикует только автор, а читатели могут обсуждать записи в комментариях.</p><div class="right-tags"><span>Блог</span><span>Заметки</span><span>Обсуждения</span></div></div>
+  <div class="right-card"><b>Участие</b><p>Войдите через GitHub, чтобы комментировать публикации. Личные сообщения и публикации читателей отключены.</p></div>
+  <div class="right-footer">Блог Никиты · <span id="footerYear"></span><br><a href="https://github.com/Nikita83USSR/Society">Исходный код</a></div>
 </aside>
 </div>
 <div id="toast" class="toast" role="status"></div>
-<div id="setupNotice" class="setup-notice hidden">Для запуска общей сети нужно указать публичные URL и anon key проекта Supabase в файле <code>app.js</code>, а затем выполнить <code>supabase/schema.sql</code>.</div>
+<div id="setupNotice" class="setup-notice hidden">Не удалось подключиться к Supabase. Проверьте настройки проекта в app.js.</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body></html>
