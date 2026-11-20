@@ -115,7 +115,26 @@ create policy "Signed-in users publish" on public.posts for insert to authentica
   author_id = auth.uid() and (wall_owner_id is null or wall_owner_id = auth.uid() or exists (select 1 from public.profiles owner_profile where owner_profile.id = wall_owner_id and owner_profile.github_login = 'Nikita83USSR'))
 );
 drop policy if exists "Owner edits own posts" on public.posts;
-create policy "Owner edits own posts" on public.posts for update to authenticated using (author_id = auth.uid() and is_society_owner()) with check (author_id = auth.uid() and is_society_owner());
+create policy "Owner edits own posts"
+on public.posts
+for update
+to authenticated
+using (
+  author_id = (select auth.uid())
+  and exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid())
+      and lower(p.github_login) = lower('Nikita83USSR')
+  )
+)
+with check (
+  author_id = (select auth.uid())
+  and exists (
+    select 1 from public.profiles p
+    where p.id = (select auth.uid())
+      and lower(p.github_login) = lower('Nikita83USSR')
+  )
+);
 
 drop policy if exists "Authors or wall owner delete posts" on public.posts;
 create policy "Authors or wall owner delete posts" on public.posts for delete to authenticated using (

@@ -304,3 +304,9 @@ body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none
 .post-edit-form .edit-save{background:#6655c7;color:white;border-color:#6655c7}
 .post-edit-form button:disabled{opacity:.55;cursor:wait}
 @media(max-width:560px){.post-share{gap:6px}.post-share>span{width:100%;margin-bottom:1px}.post-share a,.post-share button{flex:1;padding:7px 5px;font-size:10px}.post-admin-actions{justify-content:flex-start}}
+
+
+/* Long-form posts */
+.composer textarea{min-height:190px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.post-edit-form textarea{min-height:220px;line-height:1.65;white-space:pre-wrap}
+.post-body{white-space:pre-wrap;overflow:visible;display:block;-webkit-line-clamp:unset;max-height:none}

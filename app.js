@@ -162,7 +162,7 @@ async function postAction(e){
   if(action==="edit"){
     const post=cachedPosts.find(p=>String(p.id)===article.dataset.post);if(!post)return;
     const body=article.querySelector(".post-body");
-    body.outerHTML='<form class="post-edit-form"><textarea maxlength="10000" rows="5" required>'+esc(post.body||"")+'</textarea><div><button type="submit" class="edit-save">Сохранить</button><button type="button" class="edit-cancel" data-action="cancel-edit">Отмена</button></div></form>';
+    body.outerHTML='<form class="post-edit-form"><textarea maxlength="50000" rows="12" required>'+esc(post.body||"")+'</textarea><div><button type="submit" class="edit-save">Сохранить</button><button type="button" class="edit-cancel" data-action="cancel-edit">Отмена</button></div></form>';
     article.querySelector(".post-edit-form textarea").focus();return;
   }
   if(action==="cancel-edit"){renderPosts();return;}
@@ -181,7 +181,7 @@ async function savePostEdit(e){
   if(!body)return toast("Текст публикации не может быть пустым.");
   const button=form.querySelector(".edit-save");button.disabled=true;button.textContent="Сохранение…";
   const {data,error}=await db.from("posts").update({body}).eq("id",article.dataset.post).eq("author_id",session.user.id).select("id").maybeSingle();
-  if(error||!data){toast("Не удалось сохранить изменения: "+(error?.message||"проверьте права доступа в Supabase."));button.disabled=false;button.textContent="Сохранить";return;}
+  if(error||!data){toast("Не удалось сохранить: "+(error?.message||"строка не обновлена. Проверьте SQL-права в Supabase."));button.disabled=false;button.textContent="Сохранить";return;}
   const post=cachedPosts.find(p=>String(p.id)===article.dataset.post);if(post)post.body=body;
   renderPosts();toast("Публикация обновлена.");
 }
