@@ -45,3 +45,30 @@
 .blog-layout .profile-cover{background:linear-gradient(110deg,#526e8a,#829bb4 60%,#c8d4df)}
 .blog-layout .right-column{gap:12px}
 .blog-layout .section-title{margin-top:18px}
+
+/* Wide customizable blog hero banner */
+.blog-layout .profile-cover{
+  height:260px;
+  min-height:180px;
+  position:relative;
+  overflow:hidden;
+  background-color:#20143d;
+  background-image:linear-gradient(110deg,#526e8a,#829bb4 60%,#c8d4df);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.blog-layout .cover-caption{display:none}
+.banner-edit{
+  position:absolute;right:14px;bottom:14px;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 13px;border-radius:4px;
+  color:#fff;background:rgba(16,18,32,.78);
+  border:1px solid rgba(255,255,255,.35);
+  font-size:11px;cursor:pointer;backdrop-filter:blur(8px);
+}
+.banner-edit:hover{background:rgba(16,18,32,.94)}
+@media(max-width:700px){
+  .blog-layout .profile-cover{height:170px;min-height:130px}
+  .banner-edit{right:8px;bottom:8px;padding:7px 9px}
+}
