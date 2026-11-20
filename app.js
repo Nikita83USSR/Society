@@ -1,42 +1,147 @@
-// Society frontend. Public browser config only: never put service-role keys or OAuth secrets here.
+// Single-author blog frontend. Public browser config only.
 const SUPABASE_URL = "https://rjjcmagkaitfvjpdrgzp.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_hZe9Pu5vCr8ThbVjQa6oiw_wkVR2yIk";
 const OWNER_LOGIN = "Nikita83USSR";
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-const configured = !SUPABASE_URL.startsWith("YOUR_") && !SUPABASE_ANON_KEY.startsWith("YOUR_") && window.supabase;
+const configured = !!(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY);
 const db = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}) : null;
-let session=null, me=null, ownerProfile=null, viewingProfile=null, currentView="wall", selectedFiles=[], activeDialog=null, cachedPosts=[];
-const fallbackAvatar="https://github.com/identicons/app.png";
+let session=null, me=null, ownerProfile=null, selectedFiles=[], cachedPosts=[];
+const fallbackAvatar="https://github.com/Nikita83USSR.png";
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function toast(s){const el=$("#toast");el.textContent=s;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2600);}
+function toast(s){const el=$("#toast");el.textContent=s;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3200);}
 function profileOf(user){const m=user?.user_metadata||{};return {id:user.id,github_login:m.user_name||m.preferred_username||m.login||"github-user",display_name:m.full_name||m.name||m.user_name||"GitHub user",avatar_url:m.avatar_url||fallbackAvatar,profile_url:m.html_url||("https://github.com/"+(m.user_name||"")),bio:m.bio||""};}
 function isOwner(){return me?.github_login?.toLowerCase()===OWNER_LOGIN.toLowerCase();}
 function setAvatar(el,url){if(el)el.src=url||fallbackAvatar;}
-function updateIdentity(){const guest={display_name:"Гость",github_login:"гость",avatar_url:fallbackAvatar,profile_url:"https://github.com/"+OWNER_LOGIN,bio:"Открытая страница Society. Войдите, чтобы публиковать и общаться."};const viewer=me||guest;const profile=viewingProfile||ownerProfile||{display_name:OWNER_LOGIN,github_login:OWNER_LOGIN,avatar_url:"https://github.com/"+OWNER_LOGIN+".png",profile_url:"https://github.com/"+OWNER_LOGIN,bio:"Сообщество Society · профиль GitHub"};setAvatar($("#sideAvatar"),viewer.avatar_url);setAvatar($("#topAvatar"),viewer.avatar_url);setAvatar($("#wallAvatar"),profile.avatar_url);$("#sideName").textContent=viewer.display_name;$("#topUserName").textContent=me?"@"+me.github_login:"Гость";$("#wallName").textContent=profile.display_name;$("#wallHandle").textContent="@"+profile.github_login;$("#wallBio").textContent=profile.bio||"Участник Society · профиль GitHub";$("#wallRole").classList.toggle("hidden",profile.github_login?.toLowerCase()!==OWNER_LOGIN.toLowerCase());$("#profileLink").href=viewer.profile_url||"#";$("#githubProfile").href=profile.profile_url||"#";$("#loginButton").classList.toggle("hidden",!!session);$("#logoutButton").classList.toggle("hidden",!session);$("#postForm").classList.toggle("hidden",!session||!viewingProfile||viewingProfile.id!==session.user.id);$("#postAuthNotice").classList.toggle("hidden",!!session);$("#messagesAuthNotice").classList.toggle("hidden",!!session);$("#messagesLayout").classList.toggle("hidden",!session);$("#savedAuthNotice").classList.toggle("hidden",!!session);}
-function showView(view){currentView=view;["wall","feed","messages","saved","users"].forEach(v=>$("#"+v+"View").classList.toggle("hidden",v!==view));$$("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));if(view==="wall")loadPosts("wall");if(view==="feed")loadPosts("feed");if(view==="saved"&&session)loadPosts("saved");if(view==="messages"&&session)loadDialogs();if(view==="users")loadUsers();}
-async function login(){if(!db)return toast("Сначала настройте Supabase: см. README.md");const redirectTo=new URL("./",location.href).href;const {error}=await db.auth.signInWithOAuth({provider:"github",options:{redirectTo,scopes:"read:user user:email"}});if(error)toast(error.message);}
-async function logout(){if(!db)return;const {error}=await db.auth.signOut();if(error)toast(error.message);else{session=null;me=null;viewingProfile=null;updateIdentity();showView("wall");toast("Вы вышли из Society");}}
-async function ensureProfile(){if(!session?.user)return;const p=profileOf(session.user);const {error}=await db.from("profiles").upsert({...p,updated_at:new Date().toISOString()},{onConflict:"id"});if(error)console.warn("Profile sync:",error.message);me=p;if(!viewingProfile||viewingProfile.id===p.id)viewingProfile=p;updateIdentity();}
-async function loadUsers(){const {data,error}=await db.from("profiles").select("*").order("updated_at",{ascending:false});if(error){toast("Не удалось загрузить пользователей: "+error.message);return;}const users=data||[];$("#usersCount").textContent=users.length+" участников";$("#usersList").innerHTML=users.map(p=>{const admin=p.github_login?.toLowerCase()===OWNER_LOGIN.toLowerCase();return '<button class="user-card '+(admin?"user-admin":"")+'" data-profile="'+esc(p.id)+'"><img src="'+esc(p.avatar_url||fallbackAvatar)+'" alt=""><span class="user-card-info"><b>'+esc(p.display_name||p.github_login)+'</b><small>@'+esc(p.github_login)+'</small>'+(admin?'<em>Администратор Society</em>':"")+'</span><span class="user-open">Открыть страницу →</span></button>';}).join("")||'<div class="empty-state">Пока никто не зарегистрировался.</div>';}
-async function openProfile(id){const {data,error}=await db.from("profiles").select("*").eq("id",id).maybeSingle();if(error||!data){toast("Не удалось открыть профиль пользователя.");return;}viewingProfile=data;ownerProfile=data;updateIdentity();showView("wall");}
+function updateIdentity(){
+  setAvatar($("#sideAvatar"),ownerProfile?.avatar_url||fallbackAvatar);
+  setAvatar($("#topAvatar"),ownerProfile?.avatar_url||fallbackAvatar);
+  setAvatar($("#wallAvatar"),ownerProfile?.avatar_url||fallbackAvatar);
+  $("#sideName").textContent=ownerProfile?.display_name||"Никита";
+  $("#topUserName").textContent=session?(isOwner()?"Автор · @"+me.github_login:"Вы вошли · @"+me.github_login):"Гость · чтение";
+  $("#loginButton").classList.toggle("hidden",!!session);
+  $("#logoutButton").classList.toggle("hidden",!session);
+  $("#postForm").classList.toggle("hidden",!isOwner());
+  $("#ownerNotice").classList.toggle("hidden",!isOwner());
+  $("#readerNotice").classList.toggle("hidden",!!session);
+}
+function login(){if(!db)return toast("Нет подключения к Supabase.");const redirectTo=new URL("./",location.href).href;db.auth.signInWithOAuth({provider:"github",options:{redirectTo,scopes:"read:user user:email"}}).then(({error})=>{if(error)toast(error.message);});}
+async function logout(){if(!db)return;const {error}=await db.auth.signOut();if(error)toast(error.message);else{session=null;me=null;updateIdentity();await loadPosts();toast("Вы вышли из аккаунта.");}}
+async function syncProfile(){
+  if(!session?.user)return;
+  const p=profileOf(session.user);
+  const {error}=await db.from("profiles").upsert({...p,updated_at:new Date().toISOString()},{onConflict:"id"});
+  if(error)console.warn("Profile sync:",error.message);
+  me=p;
+  if(isOwner())ownerProfile=p;
+  updateIdentity();
+}
+async function loadOwner(){
+  const {data,error}=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();
+  if(error)console.warn("Owner profile:",error.message);
+  ownerProfile=data||ownerProfile||{github_login:OWNER_LOGIN,display_name:"Никита",avatar_url:fallbackAvatar,profile_url:"https://github.com/"+OWNER_LOGIN};
+  updateIdentity();
+}
 function findLinks(text){return [...new Set((String(text||"").match(/https?:\/\/[^\s<>"']+/gi)||[]).map(x=>x.replace(/[),.!?;:]+$/,"")))];}
 function linkPreview(url){try{const u=new URL(url);if(!["http:","https:"].includes(u.protocol))return "";return '<a class="link-preview" href="'+esc(u.href)+'" target="_blank" rel="noopener noreferrer"><span class="link-preview-icon">↗</span><span class="link-preview-copy"><b>'+esc(u.hostname.replace(/^www\./,""))+'</b><small>'+esc(u.pathname==="/"?"Открыть страницу":u.pathname)+'</small><em>'+esc(u.href)+'</em></span></a>';}catch{return "";}}
-function richText(text){let out="",last=0;const source=String(text||"");const re=/https?:\/\/[^\s<>"']+/gi;let m;while((m=re.exec(source))){const raw=m[0],url=raw.replace(/[),.!?;:]+$/,"");out+=esc(source.slice(last,m.index));out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(url)+'</a>'+esc(raw.slice(url.length));last=m.index+raw.length;}return out+esc(source.slice(last)).replace(/\n/g,"<br>");}
-function postMarkup(p){const author=p.profiles||{};const liked=(p.post_likes||[]).some(x=>x.user_id===session?.user?.id);const saved=(p.post_bookmarks||[]).some(x=>x.user_id===session?.user?.id);const comments=(p.comments||[]).map(c=>{const a=c.profiles||{};return '<div class="comment"><img src="'+esc(a.avatar_url||fallbackAvatar)+'" alt=""><div class="comment-content"><b>'+esc(a.display_name||a.github_login||"Пользователь")+'</b>'+richText(c.body)+'</div></div>';}).join("");const imgs=(p.image_urls||[]).map(url=>'<img src="'+esc(url)+'" alt="Изображение публикации" loading="lazy">').join("");const urls=[...findLinks(p.body),...(p.link_url?[p.link_url]:[])];const link=urls.length?linkPreview(urls[0]):"";return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(author.avatar_url||fallbackAvatar)+'" alt=""><div><a class="post-author" href="'+esc(author.profile_url||"#")+'" target="_blank" rel="noopener">'+esc(author.display_name||author.github_login||"Пользователь")+'</a><div class="post-meta">@'+esc(author.github_login||"github")+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="post-actions"><button data-action="like" class="'+(liked?"active":"")+'">♥ Нравится ('+(p.post_likes||[]).length+')</button><button data-action="comment">✎ Комментировать ('+(p.comments||[]).length+')</button><button data-action="save">'+(saved?'★ В закладках':'☆ В закладки')+'</button>'+(session&&(author.id===session.user.id||isOwner())?'<button data-action="delete">Удалить</button>':"")+'</div><div class="comments">'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Оставить комментарий...":"Войдите, чтобы комментировать")+'" '+(!session?"disabled":"")+'><button '+(!session?"disabled":"")+'>Ответить</button></form></div></article>';}
-async function loadPosts(mode){if(!db){$("#setupNotice").classList.remove("hidden");return;}let q=db.from("posts").select("*,profiles!posts_author_id_fkey(*),comments(*,profiles!comments_author_id_fkey(*)),post_likes(user_id),post_bookmarks(user_id)").order("created_at",{ascending:false}).limit(50);if(mode==="wall"){if(!viewingProfile){if(me)viewingProfile=me;else{const {data:owner}=await db.from("profiles").select("*").eq("github_login",OWNER_LOGIN).maybeSingle();viewingProfile=owner||null;}}if(viewingProfile){ownerProfile=viewingProfile;updateIdentity();}if(viewingProfile){q=q.or("wall_owner_id.eq."+viewingProfile.id+",and(wall_owner_id.is.null,author_id.eq."+viewingProfile.id+")");}else{q=q.eq("wall_owner_id","00000000-0000-0000-0000-000000000000");}}else if(mode==="saved"){if(!session)return renderPosts([]);const {data:marks}=await db.from("post_bookmarks").select("post_id").eq("user_id",session.user.id);const ids=(marks||[]).map(x=>x.post_id);if(!ids.length)return renderPosts([]);q=q.in("id",ids);}const {data,error}=await q;if(error){toast("Не удалось загрузить публикации: "+error.message);return;}cachedPosts=data||[];renderPosts(cachedPosts,mode);}
-function renderPosts(items,mode=currentView){const target=mode==="feed"?"#feedPosts":mode==="saved"?"#savedPosts":"#posts";$(target).innerHTML=items.map(postMarkup).join("");if(mode==="wall"){$("#postCount").textContent=items.length+" записей";$("#emptyState").classList.toggle("hidden",items.length>0);}}
-async function uploadImages(){const urls=[];for(const file of selectedFiles){if(!file.type.startsWith("image/")||file.size>8*1024*1024)throw new Error("Изображения должны быть до 8 МБ каждое.");const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase();const fileId=window.crypto&&typeof window.crypto.randomUUID==="function"?window.crypto.randomUUID():Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);const path=session.user.id+"/"+fileId+"."+ext;const {error}=await db.storage.from("society-images").upload(path,file,{contentType:file.type,upsert:false});if(error)throw error;const {data}=db.storage.from("society-images").getPublicUrl(path);urls.push(data.publicUrl);}return urls;}
-async function publish(e){e.preventDefault();if(!session)return toast("Войдите через GitHub, чтобы публиковать.");const body=$("#postText").value.trim();if(!body&&!selectedFiles.length)return;try{const images=await uploadImages();const wallOwner=session.user.id;const {error}=await db.from("posts").insert({author_id:session.user.id,wall_owner_id:wallOwner,body,link_url:null,image_urls:images});if(error)throw error;$("#postText").value="";selectedFiles=[];$("#imageInput").value="";$("#imagePreview").innerHTML="";$("#imagePreview").classList.add("hidden");$("#fileNames").textContent="";$("#publishButton").disabled=true;toast("Запись опубликована");showView(isOwner()?"wall":"feed");}catch(err){console.error("Society publish failed:",err);toast("Ошибка публикации: "+(err?.message||String(err)));}}
-async function postAction(e){const b=e.target.closest("[data-action]");if(!b)return;const article=b.closest("[data-post]"),id=article?.dataset.post,p=cachedPosts.find(x=>x.id===id);if(!p)return;if(!session)return toast("Войдите через GitHub.");if(b.dataset.action==="like"){const exists=(p.post_likes||[]).some(x=>x.user_id===session.user.id);const res=exists?await db.from("post_likes").delete().eq("post_id",id).eq("user_id",session.user.id):await db.from("post_likes").insert({post_id:id,user_id:session.user.id});if(res.error)toast(res.error.message);else loadPosts(currentView);}if(b.dataset.action==="comment")article.querySelector(".comment-form input").focus();if(b.dataset.action==="delete"){if(!confirm("Удалить эту запись?"))return;b.disabled=true;const {error}=await db.from("posts").delete().eq("id",id);if(error){b.disabled=false;toast(error.message);}else{cachedPosts=cachedPosts.filter(x=>x.id!==id);article.remove();if(currentView==="wall"){$("#postCount").textContent=cachedPosts.length+" записей";$("#emptyState").classList.toggle("hidden",cachedPosts.length>0);}const target=currentView==="feed"?"#feedPosts":currentView==="saved"?"#savedPosts":"#posts";if(!$(target).querySelector("[data-post]"))$(target).innerHTML='<div class="empty-state">Публикаций пока нет.</div>';toast("Запись удалена");}}if(b.dataset.action==="save"){const exists=(p.post_bookmarks||[]).some(x=>x.user_id===session.user.id);const res=exists?await db.from("post_bookmarks").delete().eq("post_id",id).eq("user_id",session.user.id):await db.from("post_bookmarks").insert({post_id:id,user_id:session.user.id});if(res.error)toast(res.error.message);else loadPosts(currentView);}}
-async function addComment(e){if(!e.target.matches(".comment-form"))return;e.preventDefault();if(!session)return toast("Войдите через GitHub.");const article=e.target.closest("[data-post]"),input=e.target.querySelector("input"),body=input.value.trim();if(!body)return;const {error}=await db.from("comments").insert({post_id:article.dataset.post,author_id:session.user.id,body});if(error)toast(error.message);else loadPosts(currentView);}
-async function loadDialogs(){if(!db||!session)return;const {data:msgs,error}=await db.from("messages").select("sender_id,recipient_id,created_at,body").or("sender_id.eq."+session.user.id+",recipient_id.eq."+session.user.id).order("created_at",{ascending:false});if(error){toast(error.message);return;}const ids=[...new Set((msgs||[]).map(m=>m.sender_id===session.user.id?m.recipient_id:m.sender_id))];if(!ids.length){$("#dialogs").innerHTML='<div class="empty-state">Пока нет сообщений.</div>';return;}const {data:people}=await db.from("profiles").select("*").in("id",ids);$("#dialogs").innerHTML=(people||[]).map(p=>'<div class="dialog-item '+(activeDialog===p.id?"active":"")+'" data-dialog="'+p.id+'"><img src="'+esc(p.avatar_url||fallbackAvatar)+'"><div><b>'+esc(p.display_name)+'</b><small>@'+esc(p.github_login)+'</small></div></div>').join("");if(!activeDialog)activeDialog=ids[0];renderDialog(msgs,people||[]);}
-async function renderDialog(msgs,people){const person=people.find(p=>p.id===activeDialog);if(!person)return;$("#chatHeader").textContent=person.display_name+" · @"+person.github_login;const relevant=msgs.filter(m=>(m.sender_id===session.user.id&&m.recipient_id===activeDialog)||(m.sender_id===activeDialog&&m.recipient_id===session.user.id)).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));$("#chatMessages").innerHTML=relevant.map(m=>{const urls=findLinks(m.body);return '<div class="message-bubble '+(m.sender_id===session.user.id?"mine":"")+'"><div class="message-text">'+richText(m.body)+'</div>'+(urls.length?linkPreview(urls[0]):"")+'</div>';}).join("");$("#chatMessages").scrollTop=$("#chatMessages").scrollHeight;$("#messageText").disabled=false;$("#messageForm button").disabled=false;}
-async function sendMessage(e){e.preventDefault();const body=$("#messageText").value.trim();if(!body||!activeDialog||!session)return;const {error}=await db.from("messages").insert({sender_id:session.user.id,recipient_id:activeDialog,body});if(error)toast(error.message);else{$("#messageText").value="";loadDialogs();}}
-async function init(){if(!configured){$("#setupNotice").classList.remove("hidden");$("#postForm").addEventListener("submit",e=>{e.preventDefault();toast("Подключите Supabase — инструкция в README.md");});return;}db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;if(nextSession){me=profileOf(nextSession.user);viewingProfile=me;updateIdentity();await ensureProfile();}else{me=null;viewingProfile=null;updateIdentity();}showView(currentView);},0);});const {data:{session:s},error}=await db.auth.getSession();if(error)console.warn("Session restore:",error.message);session=s;if(session){me=profileOf(session.user);viewingProfile=me;updateIdentity();await ensureProfile();}else updateIdentity();showView("wall");}
-$("#loginButton").addEventListener("click",login);$("#logoutButton").addEventListener("click",logout);document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))login();});$("#postForm").addEventListener("submit",publish);$("#posts").addEventListener("click",postAction);$("#feedPosts").addEventListener("click",postAction);$("#savedPosts").addEventListener("click",postAction);["#posts","#feedPosts","#savedPosts"].forEach(s=>$(s).addEventListener("submit",addComment));$("#messageForm").addEventListener("submit",sendMessage);
-document.addEventListener("click",e=>{const v=e.target.closest("[data-view]");if(v){e.preventDefault();showView(v.dataset.view);}const p=e.target.closest("[data-profile]");if(p){openProfile(p.dataset.profile);}const d=e.target.closest("[data-dialog]");if(d){activeDialog=d.dataset.dialog;loadDialogs();}});
+function richText(value){let out="",last=0;const source=String(value||"");const re=/https?:\/\/[^\s<>"']+/gi;let m;while((m=re.exec(source))){const raw=m[0],url=raw.replace(/[),.!?;:]+$/,"");out+=esc(source.slice(last,m.index));out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(url)+'</a>'+esc(raw.slice(url.length));last=m.index+raw.length;}return (out+esc(source.slice(last))).replace(/\n/g,"<br>");}
+function postMarkup(p){
+  const comments=(p.comments||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).map(c=>{
+    const a=c.profiles||{};
+    return '<div class="comment"><img src="'+esc(a.avatar_url||"https://github.com/identicons/app.png")+'" alt=""><div class="comment-content"><b>'+esc(a.display_name||a.github_login||"Пользователь")+'</b><span class="comment-login">@'+esc(a.github_login||"github-user")+'</span><div>'+richText(c.body)+'</div></div></div>';
+  }).join("");
+  const imgs=(p.image_urls||[]).map(url=>'<img src="'+esc(url)+'" alt="Изображение публикации" loading="lazy">').join("");
+  const urls=[...findLinks(p.body),...(p.link_url?[p.link_url]:[])];
+  const link=urls.length?linkPreview(urls[0]):"";
+  const canComment=!!session;
+  return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(canComment?"Написать комментарий…":"Войдите через GitHub, чтобы комментировать")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button data-action="delete">Удалить запись</button></div>':"")+'</article>';
+}
+async function loadPosts(){
+  if(!db){$("#setupNotice").classList.remove("hidden");return;}
+  await loadOwner();
+  if(!ownerProfile?.id){$("#posts").innerHTML='<div class="empty-state">Профиль автора пока не найден. Войдите в блог через GitHub под аккаунтом автора.</div>';$("#postCount").textContent="0 записей";return;}
+  const {data,error}=await db.from("posts").select("*,profiles!posts_author_id_fkey(*),comments(*,profiles!comments_author_id_fkey(*))").eq("author_id",ownerProfile.id).order("created_at",{ascending:false}).limit(100);
+  if(error){console.error("Blog posts load:",error);toast("Не удалось загрузить записи: "+error.message);return;}
+  cachedPosts=data||[];
+  renderPosts();
+}
+function renderPosts(){
+  const term=$("#searchInput").value.trim().toLocaleLowerCase("ru");
+  const visible=cachedPosts.filter(p=>!term||(p.body||"").toLocaleLowerCase("ru").includes(term));
+  $("#posts").innerHTML=visible.map(postMarkup).join("");
+  $("#postCount").textContent=visible.length+" записей";
+  $("#emptyState").classList.toggle("hidden",visible.length>0);
+}
+async function uploadImages(){
+  const urls=[];
+  for(const file of selectedFiles){
+    if(!file.type.startsWith("image/")||file.size>8*1024*1024)throw new Error("Изображения должны быть до 8 МБ каждое.");
+    const ext=(file.name.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase();
+    const id=window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+"-"+Math.random().toString(36).slice(2);
+    const path=session.user.id+"/"+id+"."+ext;
+    const {error}=await db.storage.from("society-images").upload(path,file,{contentType:file.type,upsert:false});
+    if(error)throw error;
+    urls.push(db.storage.from("society-images").getPublicUrl(path).data.publicUrl);
+  }
+  return urls;
+}
+async function publish(e){
+  e.preventDefault();
+  if(!isOwner())return toast("Публиковать записи может только автор блога.");
+  const body=$("#postText").value.trim();
+  if(!body&&!selectedFiles.length)return;
+  const button=$("#publishButton");button.disabled=true;button.textContent="Публикация…";
+  try{
+    const images=await uploadImages();
+    const {error}=await db.from("posts").insert({author_id:session.user.id,wall_owner_id:null,body,link_url:null,image_urls:images});
+    if(error)throw error;
+    $("#postText").value="";selectedFiles=[];$("#imageInput").value="";$("#imagePreview").innerHTML="";$("#imagePreview").classList.add("hidden");$("#fileNames").textContent="";
+    await loadPosts();toast("Запись опубликована.");
+  }catch(err){console.error("Blog publish failed:",err);toast("Ошибка публикации: "+(err?.message||String(err)));}
+  finally{button.textContent="Опубликовать";button.disabled=!($("#postText").value.trim()||selectedFiles.length);}
+}
+async function addComment(e){
+  if(!e.target.matches(".comment-form"))return;
+  e.preventDefault();
+  if(!session)return toast("Войдите через GitHub, чтобы комментировать.");
+  const article=e.target.closest("[data-post]"),input=e.target.querySelector("input"),body=input.value.trim();
+  if(!body)return;
+  const button=e.target.querySelector("button");button.disabled=true;
+  const {error}=await db.from("comments").insert({post_id:article.dataset.post,author_id:session.user.id,body});
+  if(error){toast("Не удалось добавить комментарий: "+error.message);button.disabled=false;}
+  else{await loadPosts();toast("Комментарий добавлен.");}
+}
+async function postAction(e){
+  const button=e.target.closest("[data-action='delete']");if(!button)return;
+  if(!isOwner())return toast("Удалять записи может только автор.");
+  const article=button.closest("[data-post]");if(!article||!confirm("Удалить эту запись?"))return;
+  button.disabled=true;
+  const {error}=await db.from("posts").delete().eq("id",article.dataset.post).eq("author_id",session.user.id);
+  if(error){toast("Не удалось удалить запись: "+error.message);button.disabled=false;return;}
+  cachedPosts=cachedPosts.filter(p=>p.id!==article.dataset.post);renderPosts();toast("Запись удалена.");
+}
+async function init(){
+  $("#footerYear").textContent=new Date().getFullYear();
+  if(!configured){$("#setupNotice").classList.remove("hidden");return;}
+  db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();},0);});
+  const {data:{session:current},error}=await db.auth.getSession();
+  if(error)console.warn("Session restore:",error.message);
+  session=current;me=session?profileOf(session.user):null;
+  if(session)await syncProfile();
+  await loadOwner();updateIdentity();await loadPosts();
+}
+$("#loginButton").addEventListener("click",login);
+$("#logoutButton").addEventListener("click",logout);
+document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))login();});
+$("#postForm").addEventListener("submit",publish);
+$("#posts").addEventListener("click",postAction);
+$("#posts").addEventListener("submit",addComment);
 $("#postText").addEventListener("input",()=>$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length));
-$("#imageInput").addEventListener("change",e=>{selectedFiles=[...e.target.files].slice(0,5);$("#imagePreview").innerHTML="";selectedFiles.forEach(f=>{const img=document.createElement("img");img.src=URL.createObjectURL(f);$("#imagePreview").append(img);});$("#imagePreview").classList.toggle("hidden",!selectedFiles.length);$("#fileNames").textContent=selectedFiles.map(f=>f.name).join(", ");$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length);});
-$("#searchInput").addEventListener("keydown",e=>{if(e.key==="Enter"){const term=e.target.value.trim().toLowerCase();if(!term)return;showView("feed");$$(".post").forEach(p=>p.classList.toggle("hidden",!p.innerText.toLowerCase().includes(term)));}});
+$("#imageInput").addEventListener("change",e=>{
+  selectedFiles=[...e.target.files].slice(0,5);$("#imagePreview").innerHTML="";
+  selectedFiles.forEach(file=>{const img=document.createElement("img");img.src=URL.createObjectURL(file);$("#imagePreview").append(img);});
+  $("#imagePreview").classList.toggle("hidden",!selectedFiles.length);$("#fileNames").textContent=selectedFiles.map(f=>f.name).join(", ");
+  $("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length);
+});
+$("#searchInput").addEventListener("input",renderPosts);
 init();
