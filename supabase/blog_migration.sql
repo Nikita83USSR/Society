@@ -17,11 +17,18 @@ drop policy if exists "Participants read messages" on public.messages;
 drop policy if exists "Users send messages to owner or owner replies" on public.messages;
 drop policy if exists "Recipients mark messages read" on public.messages;
 
--- Comments remain readable publicly and writable only by the signed-in commenter.
+-- Allow anonymous comments. Null author_id means the public label "Аноним".
+alter table public.comments alter column author_id drop not null;
 drop policy if exists "Signed-in users comment" on public.comments;
-create policy "Signed-in users comment" on public.comments
-for insert to authenticated
-with check (author_id = auth.uid());
+drop policy if exists "Anyone can comment" on public.comments;
+drop policy if exists "Authenticated users comment as themselves" on public.comments;
+create policy "Anyone can comment" on public.comments
+for insert to anon, authenticated
+with check (
+  (auth.uid() is null and author_id is null)
+  or
+  (auth.uid() is not null and author_id = auth.uid())
+);
 
 -- Shared public blog banner setting.
 create table if not exists public.site_settings (
