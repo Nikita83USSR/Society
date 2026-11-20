@@ -253,7 +253,7 @@ async function publish(e){
     const images=await uploadImages();
     const {error}=await db.from("posts").insert({author_id:session.user.id,wall_owner_id:null,body,link_url:null,image_urls:images});
     if(error)throw error;
-    $("#postText").value="";selectedFiles=[];$("#imageInput").value="";$("#imagePreview").innerHTML="";$("#imagePreview").classList.add("hidden");$("#fileNames").textContent="";
+    selectedFiles.forEach(file=>{});selectedFiles=[];$("#postText").value="";$("#imageInput").value="";updateComposerImagePreview();
     await loadPosts();toast("Запись опубликована.");
   }catch(err){console.error("Blog publish failed:",err);toast("Ошибка публикации: "+(err?.message||String(err)));}
   finally{button.textContent="Опубликовать";button.disabled=!($("#postText").value.trim()||selectedFiles.length);}
@@ -381,11 +381,46 @@ $("#posts").addEventListener("submit",addComment);
 $("#posts").addEventListener("submit",savePostEdit);
 $("#postText").addEventListener("input",()=>$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length));
 $("#bannerInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)changeBanner(file);e.target.value="";});
-$("#imageInput").addEventListener("change",e=>{
-  selectedFiles=[...e.target.files].slice(0,5);$("#imagePreview").innerHTML="";
-  selectedFiles.forEach(file=>{const img=document.createElement("img");img.src=URL.createObjectURL(file);$("#imagePreview").append(img);});
-  $("#imagePreview").classList.toggle("hidden",!selectedFiles.length);$("#fileNames").textContent=selectedFiles.map(f=>f.name).join(", ");
+function updateComposerImagePreview(){
+  const preview=$("#imagePreview");
+  preview.querySelectorAll("img").forEach(img=>{if(img.dataset.objectUrl)URL.revokeObjectURL(img.dataset.objectUrl);});
+  preview.innerHTML="";
+  selectedFiles.forEach((file,index)=>{
+    const item=document.createElement("div");item.className="image-preview-item";
+    const img=document.createElement("img");img.alt=file.name||"Изображение для публикации";img.src=URL.createObjectURL(file);img.dataset.objectUrl=img.src;
+    const remove=document.createElement("button");remove.type="button";remove.className="image-preview-remove";remove.dataset.removeImage=String(index);remove.setAttribute("aria-label","Убрать изображение");remove.textContent="×";
+    item.append(img,remove);preview.append(item);
+  });
+  preview.classList.toggle("hidden",!selectedFiles.length);
+  $("#fileNames").textContent=selectedFiles.length?selectedFiles.length+" изображений выбрано":"";
   $("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length);
+}
+function addComposerImages(files){
+  const incoming=[...files].filter(file=>file&&file.type?.startsWith("image/"));
+  if(!incoming.length)return;
+  const available=Math.max(0,5-selectedFiles.length);
+  selectedFiles=[...selectedFiles,...incoming.slice(0,available)];
+  updateComposerImagePreview();
+  if(incoming.length>available)toast("В одну публикацию можно добавить не более 5 изображений.");
+}
+$("#imageInput").addEventListener("change",e=>{
+  addComposerImages(e.target.files||[]);
+  e.target.value="";
+});
+$("#postText").addEventListener("paste",e=>{
+  const items=[...(e.clipboardData?.items||[])];
+  const images=items.filter(item=>item.kind==="file"&&item.type.startsWith("image/")).map(item=>item.getAsFile()).filter(Boolean);
+  if(!images.length)return;
+  e.preventDefault();
+  const files=images.map((blob,index)=>new File([blob],"clipboard-image-"+Date.now()+"-"+index+"."+(blob.type.split("/")[1]||"png").replace("jpeg","jpg"),{type:blob.type}));
+  addComposerImages(files);
+  toast("Изображение добавлено из буфера обмена.");
+});
+$("#imagePreview").addEventListener("click",e=>{
+  const remove=e.target.closest("[data-remove-image]");
+  if(!remove)return;
+  selectedFiles.splice(Number(remove.dataset.removeImage),1);
+  updateComposerImagePreview();
 });
 $("#searchInput").addEventListener("input",renderPosts);
 init();
