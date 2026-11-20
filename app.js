@@ -76,6 +76,16 @@ function postMarkup(p){
   const canComment=true;
   return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button data-action="delete">Удалить запись</button></div>':"")+'</article>';
 }
+async function loadProjects(){
+  const box=$("#projectsList"); if(!box)return;
+  try{
+    const response=await fetch("https://api.github.com/users/Nikita83USSR/repos?type=owner&sort=updated&per_page=100");
+    if(!response.ok)throw new Error("GitHub API "+response.status);
+    const repos=(await response.json()).filter(r=>!r.private&&!r.archived).sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+    if(!repos.length){box.innerHTML='<div class="projects-loading">Публичных проектов пока нет.</div>';return;}
+    box.innerHTML=repos.map(r=>'<a class="project-item" href="'+esc(r.html_url)+'" target="_blank" rel="noopener"><span class="project-icon">⌘</span><span class="project-info"><b>'+esc(r.name)+'</b><small>'+esc(r.description||"Публичный репозиторий")+'</small><span class="project-meta">'+(r.language?'<i>'+esc(r.language)+'</i>':'')+'<i>★ '+r.stargazers_count+'</i></span></a>').join("");
+  }catch(err){console.warn("Projects load:",err);box.innerHTML='<div class="projects-loading">Не удалось загрузить список проектов.</div>';}
+}
 async function loadPosts(){
   if(!db){$("#setupNotice").classList.remove("hidden");return;}
   await loadOwner();
@@ -142,6 +152,7 @@ async function postAction(e){
 }
 async function init(){
   $("#footerYear").textContent=new Date().getFullYear();
+  loadProjects();
   if(!configured){$("#setupNotice").classList.remove("hidden");return;}
   db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();},0);});
   const {data:{session:current},error}=await db.auth.getSession();
