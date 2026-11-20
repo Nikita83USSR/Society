@@ -405,3 +405,17 @@ body::before{
   background-position:center!important;
 }
 body::after{z-index:-1!important;opacity:.72}
+
+
+/* GitHub Follow control on the profile cover */
+.profile-cover{position:relative}
+.github-follow-widget{position:absolute;z-index:3;left:16px;bottom:13px;display:flex;align-items:center;gap:10px}
+.github-follow-widget button{border:1px solid rgba(255,255,255,.75);border-radius:9px;padding:8px 13px;background:rgba(255,255,255,.88);color:#514782;font:600 11px Arial,Helvetica,sans-serif;box-shadow:0 4px 14px rgba(40,35,75,.14);backdrop-filter:blur(10px);cursor:pointer;transition:transform .16s,background .16s}
+.github-follow-widget button:hover:not(:disabled){transform:translateY(-1px);background:#fff}
+.github-follow-widget button:disabled{opacity:.75;cursor:default}
+.github-follow-widget span{font:11px Arial,Helvetica,sans-serif;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.55)}
+@media(max-width:560px){
+ .github-follow-widget{left:9px;bottom:9px;gap:7px}
+ .github-follow-widget button{padding:7px 9px;font-size:10px}
+ .github-follow-widget span{font-size:10px}
+}
