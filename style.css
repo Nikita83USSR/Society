@@ -16,3 +16,32 @@
 
 /* Automatic clickable URLs and rich link preview cards */
 .post-body a,.message-text a{color:#28649b;text-decoration:underline;overflow-wrap:anywhere}.link-preview{display:flex;align-items:center;gap:10px;margin:9px 0 3px;padding:10px 12px;border:1px solid #dce3eb;border-radius:4px;background:#f8fafc;color:var(--text);text-decoration:none;max-width:560px}.link-preview:hover{background:#f0f5fa;border-color:#b7c8d9}.link-preview-icon{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:3px;background:#e8eef5;color:#41688e;font-size:19px}.link-preview-copy{display:flex;flex-direction:column;gap:3px;min-width:0}.link-preview-copy b{font-size:12px;color:#315d86}.link-preview-copy small{font-size:11px;color:#5f6d7c;overflow-wrap:anywhere}.link-preview-copy em{font-size:10px;color:#8995a2;font-style:normal;overflow-wrap:anywhere}
+
+
+/* Single-author blog presentation */
+.blog-layout .profile-avatar{width:118px;height:118px}
+.blog-author-label{display:block;margin-top:5px;color:#8a6b27;font-size:10px;font-weight:bold}
+.blog-layout .side-profile{padding-bottom:8px}
+.blog-layout .main-nav{margin-top:8px}
+.blog-layout .profile-summary{min-height:100px}
+.blog-layout .profile-bio{max-width:440px}
+.blog-layout .post{padding:15px 16px}
+.blog-layout .post-owner-mark{margin-left:auto;color:#8a6b27;background:#fbf4df;border:1px solid #ead8a5;padding:3px 7px;border-radius:2px;font-size:10px}
+.blog-layout .post-author{color:#315d86;font-size:13px}
+.blog-layout .post-body{font-size:14px;line-height:1.65;margin:14px 0}
+.blog-layout .comments-heading{font-size:11px;font-weight:bold;color:#687584;margin-bottom:6px}
+.blog-layout .comment{border-bottom:1px solid #f0f2f4;padding:8px 0}
+.blog-layout .comment img{width:32px;height:32px;border-radius:50%}
+.blog-layout .comment-content{flex:1;min-width:0}
+.blog-layout .comment-login{font-size:10px;color:#9aa2ac;margin-left:6px}
+.blog-layout .comment-content>div{margin-top:3px;overflow-wrap:anywhere}
+.blog-layout .comment-form{margin-top:10px}
+.blog-layout .comment-form input{border-radius:2px}
+.blog-layout .comment-form button{border-radius:2px}
+.blog-layout .comment-form button:disabled{opacity:.5;cursor:default}
+.blog-layout .post-admin-actions{border-top:1px solid #edf0f2;margin-top:9px;padding-top:7px;text-align:right}
+.blog-layout .post-admin-actions button{border:0;background:none;color:#a35a5a;font-size:10px;cursor:pointer}
+.blog-layout .auth-notice{margin-top:14px}
+.blog-layout .profile-cover{background:linear-gradient(110deg,#526e8a,#829bb4 60%,#c8d4df)}
+.blog-layout .right-column{gap:12px}
+.blog-layout .section-title{margin-top:18px}
