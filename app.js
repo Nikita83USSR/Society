@@ -25,6 +25,7 @@ function updateIdentity(){
   $("#bannerEdit").classList.toggle("hidden",!isOwner());
   $("#ownerNotice").classList.toggle("hidden",!isOwner());
   $("#readerNotice").classList.toggle("hidden",!!session);
+  $("#ownerAnalytics")?.classList.toggle("hidden",!isOwner());
 }
 function login(){if(!db)return toast("Нет подключения к Supabase.");const redirectTo=new URL("./",location.href).href;db.auth.signInWithOAuth({provider:"github",options:{redirectTo,scopes:"read:user user:email"}}).then(({error})=>{if(error)toast(error.message);});}
 async function logout(){if(!db)return;const {error}=await db.auth.signOut();if(error)toast(error.message);else{session=null;me=null;updateIdentity();await loadPosts();toast("Вы вышли из аккаунта.");}}
