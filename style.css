@@ -164,3 +164,93 @@ body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none
 .blog-layout .post{background:rgba(255,255,255,.25)!important;backdrop-filter:blur(20px) saturate(155%);-webkit-backdrop-filter:blur(20px) saturate(155%)}
 .blog-layout .composer,.blog-layout .auth-notice,.blog-layout .empty-state{background:rgba(255,255,255,.31)!important;backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%)}
 .blog-layout .profile-avatar{border-radius:10px!important;aspect-ratio:1/1!important;object-fit:cover!important;width:100%!important;height:auto!important}
+
+/* Mobile layout overhaul */
+@media(max-width:560px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden}
+ .topbar{height:52px;position:sticky;top:0}
+ .topbar-inner{height:52px;padding:0 12px;gap:10px}
+ .brand{font-size:17px;gap:7px;white-space:nowrap}
+ .brand-mark{width:29px;height:29px}
+ .top-search{flex:1;min-width:0;width:auto;height:34px;padding:0 10px;border-radius:10px}
+ .top-search input{font-size:13px;min-width:0}
+ .top-user{margin-left:0;flex:0 0 auto}
+ .top-user span{display:none}
+ .tiny-avatar{width:30px;height:30px;border-radius:8px}
+ .layout.blog-layout{display:flex;flex-direction:column;gap:0;width:100%;max-width:none;margin:0;padding:0 10px}
+ .left-column{width:100%;min-height:0;margin:0;position:static;display:block}
+ .side-profile{display:flex;align-items:center;gap:12px;text-align:left;padding:11px;margin:10px 0;border-radius:15px}
+ .blog-layout .profile-avatar{width:78px!important;height:78px!important;aspect-ratio:1/1!important;flex:0 0 78px;object-fit:cover;border-radius:12px!important;margin:0!important}
+ .side-profile b{font-size:15px;line-height:1.2}
+ .blog-author-label{font-size:12px;margin-top:4px}
+ .side-profile a{display:inline-block;margin-top:5px;font-size:12px}
+ .projects-panel{margin:0 0 12px;padding:12px;border-radius:15px}
+ .projects-panel h3{font-size:14px;margin:0 0 9px}
+ .projects-list{max-height:140px;overflow:auto;display:flex;flex-direction:row;gap:8px;padding-bottom:2px}
+ .projects-list>*{min-width:175px;max-width:175px}
+ .projects-all{display:inline-block;margin-top:8px;font-size:12px}
+ .main-nav{display:none}
+ .center-column{width:100%;min-width:0}
+ .page-heading{height:auto;display:block;padding:8px 2px 12px}
+ .page-heading h1{font-size:21px;line-height:1.2;margin:0 0 5px}
+ .page-heading p{font-size:12px;line-height:1.4}
+ .online-dot{display:none}
+ .profile-cover{height:145px!important;min-height:145px!important;border-radius:14px 14px 0 0;background-size:cover!important;background-position:center!important}
+ .cover-caption{font-size:9px;letter-spacing:1.5px;right:9px;bottom:8px}
+ .profile-summary{min-height:0;display:flex;gap:10px;align-items:center;padding:11px;border-radius:0 0 14px 14px;flex-wrap:wrap}
+ .wall-avatar{width:58px;height:58px;flex:0 0 58px;object-fit:cover;border-radius:12px}
+ .profile-data{flex:1;min-width:120px}
+ .profile-data h2{font-size:16px;margin-bottom:3px}
+ .profile-data .muted{font-size:11px}
+ .admin-role{font-size:11px;margin-top:3px}
+ .profile-bio{font-size:11px;line-height:1.35;margin-top:4px}
+ .small-blue-button{margin-left:auto;font-size:11px;padding:7px 10px}
+ .composer,.auth-notice{padding:12px;margin-top:12px;border-radius:14px}
+ .composer-title{align-items:flex-start;gap:8px;flex-wrap:wrap}
+ .composer-title b{font-size:14px}
+ .composer-title span{font-size:10px}
+ .composer textarea{font-size:14px;min-height:88px;padding:8px 0}
+ .composer-tools{display:flex;flex-wrap:wrap;gap:9px;padding-top:10px}
+ .tool-button{padding:8px 0;font-size:12px}
+ .file-names{flex:1 1 100%;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+ .blue-button{padding:9px 13px}
+ .auth-notice{font-size:12px;line-height:1.5;gap:8px}
+ .auth-notice b{display:block}
+ .auth-notice span{display:block}
+ .auth-notice .login-button{width:100%;margin-top:8px}
+ .section-title{margin:16px 2px 9px;font-size:14px}
+ .posts{gap:11px}
+ .post{padding:12px;border-radius:14px}
+ .post-head{gap:9px}
+ .post-avatar{width:38px;height:38px;flex:0 0 38px;object-fit:cover}
+ .post-author{font-size:12px}
+ .post-meta{font-size:10px}
+ .post-body{font-size:14px;line-height:1.55;margin:10px 0;overflow-wrap:anywhere}
+ .post-link{padding:9px;font-size:12px;word-break:break-word}
+ .post-images{gap:5px}
+ .post-images img{max-width:100%;width:auto;max-height:280px;object-fit:contain;border-radius:9px}
+ .post-actions{gap:14px;flex-wrap:wrap}
+ .post-actions button{font-size:12px;padding:5px 0}
+ .comments{margin-top:9px;padding-top:8px}
+ .comment{gap:7px;padding:7px 0}
+ .comment img{width:28px;height:28px;flex:0 0 28px}
+ .comment-content{font-size:12px;overflow-wrap:anywhere}
+ .comment-form{gap:6px;align-items:stretch}
+ .comment-form input{font-size:13px;min-width:0;padding:9px}
+ .comment-form button{padding:0 10px;font-size:12px;white-space:nowrap}
+ .empty-state{padding:20px 12px;border-radius:14px}
+ .right-column{display:none}
+ .toast{max-width:calc(100% - 24px);width:max-content;bottom:14px;font-size:12px}
+}
+@media(max-width:380px){
+ .topbar-inner{gap:7px;padding:0 8px}
+ .brand{font-size:15px}
+ .top-search{padding:0 7px}
+ .page-heading h1{font-size:19px}
+ .profile-cover{height:125px!important;min-height:125px!important}
+ .profile-summary{gap:8px}
+ .profile-data{min-width:110px}
+ .small-blue-button{padding:6px 8px}
+ .side-profile{gap:9px;padding:9px}
+ .blog-layout .profile-avatar{width:68px!important;height:68px!important;flex-basis:68px}
+}
