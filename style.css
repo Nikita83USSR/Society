@@ -328,3 +328,34 @@ body:has(#ownerAnalytics:not(.hidden)) .owner-analytics{display:block}
 .blog-layout .profile-socials a:hover{background:rgba(255,255,255,.72);border-color:rgba(111,94,177,.42);transform:translateY(-1px)}
 .blog-layout .profile-socials a span{font-size:11px;color:#765fc2}
 @media(max-width:560px){.blog-layout .profile-summary{align-items:flex-start;flex-wrap:wrap}.blog-layout .profile-data{min-width:calc(100% - 78px)}.blog-layout .profile-socials{gap:6px}.blog-layout .profile-socials a{padding:6px 8px}}
+
+
+/* Calm light architectural backdrop: pale concrete planes and natural soft shadows */
+html,body{background:#edf0f3!important}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-4%;
+  z-index:-2;
+  pointer-events:none;
+  transform:translateZ(0);
+  background:
+    linear-gradient(126deg,transparent 0 17%,rgba(255,255,255,.76) 17.1% 17.8%,transparent 17.9% 100%),
+    linear-gradient(54deg,transparent 0 58%,rgba(177,188,201,.18) 58.1% 58.8%,transparent 58.9% 100%),
+    linear-gradient(142deg,transparent 0 72%,rgba(255,255,255,.72) 72.1% 73%,transparent 73.1% 100%),
+    radial-gradient(ellipse at 14% 18%,rgba(255,255,255,.96),transparent 38%),
+    radial-gradient(ellipse at 86% 82%,rgba(205,214,224,.42),transparent 42%),
+    linear-gradient(135deg,#e9edf1 0%,#f5f6f7 48%,#e5eaf0 100%);
+  background-repeat:no-repeat;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(150deg,transparent 0 36%,rgba(155,169,185,.075) 36.1% 36.35%,transparent 36.45% 100%),
+    linear-gradient(30deg,transparent 0 68%,rgba(255,255,255,.48) 68.1% 68.6%,transparent 68.7% 100%),
+    radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.38),transparent 58%);
+}
