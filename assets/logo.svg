@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="54" viewBox="0 0 250 54">
+<defs><linearGradient id="neon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff85db"/><stop offset=".48" stop-color="#c58aff"/><stop offset="1" stop-color="#74e9ff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g opacity=".92"><circle cx="25" cy="26" r="19" fill="url(#neon)" opacity=".25"/><circle cx="25" cy="26" r="14" fill="none" stroke="url(#neon)" stroke-width="1.5"/><path d="M9 26h32M13 32h24M17 37h16M21 41h8" stroke="url(#neon)" stroke-width="1.4" stroke-linecap="round"/></g>
+<path d="M17 15v23h5V23l7 15h5V15h-5v14l-7-14z" fill="url(#neon)" filter="url(#glow)"/>
+<text x="51" y="24" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" letter-spacing="1.5">NIKITA</text>
+<text x="51" y="42" fill="url(#neon)" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" letter-spacing="2">MARKIN</text>
+<path d="M51 47h174" stroke="url(#neon)" stroke-width="1.5" opacity=".85"/>
+</svg>
