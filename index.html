@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111114"><title>Society</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+<div class="brand"><span class="brand-icon">S</span> society</div>
+<nav><button class="nav active" data-view="feed">◫ <span>Лента</span></button><button class="nav" data-view="saved">◇ <span>Сохранённое</span></button></nav>
+<div class="sidebar-bottom"><div class="user-mini"><div class="avatar">G</div><div><b>Гость</b><small>Демо-режим</small></div></div><button id="login" class="outline">↗ Войти через GitHub</button><small class="note">Прототип · хранение в браузере</small></div>
+</aside>
+<main>
+<header class="header"><div><small class="eyebrow">COMMUNITY SPACE</small><h1 id="heading">Лента</h1></div><button id="search" class="search" aria-label="Поиск">⌕</button></header>
+<section class="feed-wrap">
+<form class="composer" id="newPost"><div class="avatar">G</div><div class="compose-body"><textarea id="postText" placeholder="Что у тебя на уме?" maxlength="3000" rows="3"></textarea><div class="compose-footer"><small>Поделись идеей с сообществом</small><button class="primary" type="submit" id="publish" disabled>Опубликовать ↗</button></div></div></form>
+<div class="feed-label"><b>Все публикации</b><span>Последние обсуждения</span></div>
+<div id="feed"></div><div id="empty" class="empty hidden"><div class="spark">✳</div><h3>Пока здесь тихо</h3><p>Создай первую публикацию.</p></div>
+</section>
+</main>
+<aside class="right">
+<div class="welcome card"><small class="eyebrow">WELCOME TO SOCIETY</small><h2>Место для<br>интересных мыслей.</h2><p>Небольшое пространство для идей, людей и разговоров.</p><span class="watermark">S.</span></div>
+<div class="card about"><div class="card-head"><b>О площадке</b><small>01</small></div><p>Society — независимое сообщество. Здесь важны идеи, уважение и живой разговор.</p><div class="chips"><span>Сообщество</span><span>Обсуждения</span><span>Идеи</span></div></div>
+<div class="card stats"><div class="card-head"><b>Активность демо</b><i></i></div><div class="stat"><strong id="postCount">0</strong><span>публикаций</span></div><div class="stat"><strong id="commentCount">0</strong><span>комментариев</span></div></div>
+<footer>Society · Prototype 0.1</footer>
+</aside>
+</div>
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body></html>
