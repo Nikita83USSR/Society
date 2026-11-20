@@ -64,6 +64,7 @@ async function loadOwner(){
 function findLinks(text){return [...new Set((String(text||"").match(/https?:\/\/[^\s<>"']+/gi)||[]).map(x=>x.replace(/[),.!?;:]+$/,"")))];}
 function linkPreview(url){try{const u=new URL(url);if(!["http:","https:"].includes(u.protocol))return "";return '<a class="link-preview" href="'+esc(u.href)+'" target="_blank" rel="noopener noreferrer"><span class="link-preview-icon">↗</span><span class="link-preview-copy"><b>'+esc(u.hostname.replace(/^www\./,""))+'</b><small>'+esc(u.pathname==="/"?"Открыть страницу":u.pathname)+'</small><em>'+esc(u.href)+'</em></span></a>';}catch{return "";}}
 function richText(value){let out="",last=0;const source=String(value||"");const re=/https?:\/\/[^\s<>"']+/gi;let m;while((m=re.exec(source))){const raw=m[0],url=raw.replace(/[),.!?;:]+$/,"");out+=esc(source.slice(last,m.index));out+='<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(url)+'</a>'+esc(raw.slice(url.length));last=m.index+raw.length;}return (out+esc(source.slice(last))).replace(/\n/g,"<br>");}
+function postShareUrl(p){return location.origin+location.pathname+"?post="+encodeURIComponent(p.id)+"#post-"+encodeURIComponent(p.id);}
 function postMarkup(p){
   const comments=(p.comments||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)).map(c=>{
     const a=c.profiles||{};
@@ -74,7 +75,7 @@ function postMarkup(p){
   const urls=[...findLinks(p.body),...(p.link_url?[p.link_url]:[])];
   const link=urls.length?linkPreview(urls[0]):"";
   const canComment=true;
-  return '<article class="post" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button data-action="delete">Удалить запись</button></div>':"")+'</article>';
+  const shareUrl=postShareUrl(p),shareText=(p.body||"Новая публикация в блоге Никиты").slice(0,180);\n  const share='<div class="post-share"><span>Поделиться:</span><a class="share-vk" href="https://vk.com/share.php?url='+encodeURIComponent(shareUrl)+'&title='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">VK</a><a class="share-tg" href="https://t.me/share/url?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">Telegram</a><a class="share-max" href="https://max.ru/:share?text='+encodeURIComponent(shareText+"\\n"+shareUrl)+'" target="_blank" rel="noopener noreferrer">MAX</a><a class="share-x" href="https://twitter.com/intent/tweet?url='+encodeURIComponent(shareUrl)+'&text='+encodeURIComponent(shareText)+'" target="_blank" rel="noopener noreferrer">X</a><button type="button" class="share-instagram" data-action="instagram-share" data-post="'+esc(p.id)+'">Instagram</button></div>';\n  return '<article class="post" id="post-'+esc(p.id)+'" data-post="'+esc(p.id)+'"><div class="post-head"><img class="post-avatar" src="'+esc(ownerProfile?.avatar_url||fallbackAvatar)+'" alt=""><div><b class="post-author">'+esc(ownerProfile?.display_name||"Никита")+'</b><div class="post-meta">@'+OWNER_LOGIN+" · "+new Date(p.created_at).toLocaleString("ru-RU")+'</div></div><span class="post-owner-mark">Автор</span></div><div class="post-body">'+richText(p.body||"")+'</div>'+link+(imgs?'<div class="post-images">'+imgs+"</div>":"")+'<div class="comments"><div class="comments-heading">Комментарии · '+(p.comments||[]).length+'</div>'+comments+'<form class="comment-form"><input maxlength="3000" placeholder="'+(session?"Написать комментарий…":"Оставить комментарий анонимно…")+'" '+(!canComment?"disabled":"")+'><button '+(!canComment?"disabled":"")+'>Отправить</button></form></div>'+(isOwner()?'<div class="post-admin-actions"><button type="button" data-action="edit">Редактировать</button><button type="button" data-action="delete">Удалить запись</button></div>':"")+'</article>';
 }
 async function loadProjects(){
   const box=$("#projectsList"); if(!box)return;
@@ -101,7 +102,7 @@ function renderPosts(){
   const visible=cachedPosts.filter(p=>!term||(p.body||"").toLocaleLowerCase("ru").includes(term));
   $("#posts").innerHTML=visible.map(postMarkup).join("");
   $("#postCount").textContent=visible.length+" записей";
-  $("#emptyState").classList.toggle("hidden",visible.length>0);
+  $("#emptyState").classList.toggle("hidden",visible.length>0);\n  const requested=new URLSearchParams(location.search).get("post");if(requested){const target=document.getElementById("post-"+requested);if(target)setTimeout(()=>target.scrollIntoView({behavior:"smooth",block:"start"}),80);}
 }
 async function uploadImages(){
   const urls=[];
@@ -141,14 +142,44 @@ async function addComment(e){
   if(error){toast("Не удалось добавить комментарий: "+error.message);button.disabled=false;}
   else{await loadPosts();toast(session?"Комментарий добавлен.":"Комментарий опубликован анонимно.");}
 }
+async function copyShareLink(value){
+  try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(value);else{const field=document.createElement("textarea");field.value=value;document.body.append(field);field.select();document.execCommand("copy");field.remove();}return true;}catch{return false;}
+}
 async function postAction(e){
-  const button=e.target.closest("[data-action='delete']");if(!button)return;
-  if(!isOwner())return toast("Удалять записи может только автор.");
-  const article=button.closest("[data-post]");if(!article||!confirm("Удалить эту запись?"))return;
-  button.disabled=true;
-  const {error}=await db.from("posts").delete().eq("id",article.dataset.post).eq("author_id",session.user.id);
-  if(error){toast("Не удалось удалить запись: "+error.message);button.disabled=false;return;}
-  cachedPosts=cachedPosts.filter(p=>p.id!==article.dataset.post);renderPosts();toast("Запись удалена.");
+  const button=e.target.closest("[data-action]");if(!button)return;
+  const action=button.dataset.action,article=button.closest("[data-post]");
+  if(!article)return;
+  if(action==="instagram-share"){
+    const post=cachedPosts.find(p=>String(p.id)===article.dataset.post),url=post?postShareUrl(post):location.href;
+    if(navigator.share){try{await navigator.share({title:"Публикация · Блог Никиты",text:post?.body||"Публикация в блоге",url});return;}catch(err){if(err?.name==="AbortError")return;}}
+    toast(await copyShareLink(url)?"Ссылка на пост скопирована. Вставь её в Instagram.":"Не удалось скопировать ссылку.");return;
+  }
+  if(!isOwner())return toast("Это действие доступно только автору блога.");
+  if(action==="edit"){
+    const post=cachedPosts.find(p=>String(p.id)===article.dataset.post);if(!post)return;
+    const body=article.querySelector(".post-body");
+    body.outerHTML='<form class="post-edit-form"><textarea maxlength="10000" rows="5" required>'+esc(post.body||"")+'</textarea><div><button type="submit" class="edit-save">Сохранить</button><button type="button" class="edit-cancel" data-action="cancel-edit">Отмена</button></div></form>';
+    article.querySelector(".post-edit-form textarea").focus();return;
+  }
+  if(action==="cancel-edit"){renderPosts();return;}
+  if(action==="delete"){
+    if(!confirm("Удалить эту запись?"))return;
+    button.disabled=true;
+    const {error}=await db.from("posts").delete().eq("id",article.dataset.post).eq("author_id",session.user.id);
+    if(error){toast("Не удалось удалить запись: "+error.message);button.disabled=false;return;}
+    cachedPosts=cachedPosts.filter(p=>String(p.id)!==article.dataset.post);renderPosts();toast("Запись удалена.");
+  }
+}
+async function savePostEdit(e){
+  if(!e.target.matches(".post-edit-form"))return;
+  e.preventDefault();if(!isOwner())return toast("Редактировать записи может только автор.");
+  const form=e.target,article=form.closest("[data-post]"),body=form.querySelector("textarea").value.trim();
+  if(!body)return toast("Текст публикации не может быть пустым.");
+  const button=form.querySelector(".edit-save");button.disabled=true;button.textContent="Сохранение…";
+  const {data,error}=await db.from("posts").update({body}).eq("id",article.dataset.post).eq("author_id",session.user.id).select("id").maybeSingle();
+  if(error||!data){toast("Не удалось сохранить изменения: "+(error?.message||"проверьте права доступа в Supabase."));button.disabled=false;button.textContent="Сохранить";return;}
+  const post=cachedPosts.find(p=>String(p.id)===article.dataset.post);if(post)post.body=body;
+  renderPosts();toast("Публикация обновлена.");
 }
 async function init(){
   $("#footerYear").textContent=new Date().getFullYear();
@@ -166,7 +197,7 @@ $("#logoutButton").addEventListener("click",logout);
 document.addEventListener("click",e=>{if(e.target.closest("[data-login]"))login();});
 $("#postForm").addEventListener("submit",publish);
 $("#posts").addEventListener("click",postAction);
-$("#posts").addEventListener("submit",addComment);
+$("#posts").addEventListener("submit",addComment);\n$("#posts").addEventListener("submit",savePostEdit);
 $("#postText").addEventListener("input",()=>$("#publishButton").disabled=!($("#postText").value.trim()||selectedFiles.length));
 $("#bannerInput").addEventListener("change",e=>{const file=e.target.files?.[0];if(file)changeBanner(file);e.target.value="";});
 $("#imageInput").addEventListener("change",e=>{
