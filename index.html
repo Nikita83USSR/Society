@@ -26,19 +26,20 @@
     <div class="profile-cover"><div class="cover-caption">SOCIETY COMMUNITY</div></div>
     <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="assets/default-avatar.svg" alt=""><div class="profile-data"><h2 id="wallName">Гость</h2><div id="wallHandle" class="muted">@гость</div><div id="wallBio" class="profile-bio">Социальная сеть на базе GitHub</div></div><a id="githubProfile" class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
     <div class="profile-tabs"><button class="tab active">Стена</button><button class="tab" data-view="feed">Новости</button><button class="tab" data-view="messages">Сообщения</button></div>
-    <form id="postForm" class="composer">
+    <form id="postForm" class="composer hidden">
       <div class="composer-title"><b>Что у вас нового?</b><span id="composerHint">Запись на стене</span></div>
       <textarea id="postText" maxlength="5000" rows="3" placeholder="Поделитесь новостью или мыслью..."></textarea>
       <div id="imagePreview" class="image-preview hidden"></div>
       <div class="composer-tools"><label class="tool-button">▧ Фото<input id="imageInput" type="file" accept="image/*" multiple hidden></label><button id="attachLink" type="button" class="tool-button">↗ Ссылка</button><span id="fileNames" class="muted file-names"></span><button type="submit" id="publishButton" class="blue-button" disabled>Отправить</button></div>
       <div id="linkRow" class="link-row hidden"><input id="postLink" type="url" placeholder="https://example.com"></div>
     </form>
+    <div id="postAuthNotice" class="auth-notice"><b>Добро пожаловать в Society!</b><span>Публиковать записи, добавлять фотографии и участвовать в обсуждениях можно после входа через GitHub.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div>
     <div class="section-title"><b id="streamTitle">Записи на стене</b><span id="postCount">0 записей</span></div>
     <div id="posts" class="posts"></div><div id="emptyState" class="empty-state hidden">На стене пока нет записей. Будьте первым!</div>
   </section>
   <section id="feedView" class="hidden"><div class="page-heading"><div><h1>Новости</h1><p>Последние публикации Society</p></div></div><div id="feedPosts" class="posts"></div></section>
-  <section id="messagesView" class="hidden"><div class="page-heading"><div><h1>Мои сообщения</h1><p>Личные разговоры</p></div></div><div class="messages-layout"><div id="dialogs" class="dialogs"><div class="empty-state">Войдите через GitHub, чтобы открыть сообщения.</div></div><div class="chat-panel"><div id="chatHeader" class="chat-header">Выберите диалог</div><div id="chatMessages" class="chat-messages"></div><form id="messageForm" class="message-form"><input id="messageText" maxlength="3000" placeholder="Написать сообщение..." disabled><button class="blue-button" disabled>Отправить</button></form></div></div></section>
-  <section id="savedView" class="hidden"><div class="page-heading"><div><h1>Закладки</h1><p>Сохранённые публикации</p></div></div><div id="savedPosts" class="posts"></div></section>
+  <section id="messagesView" class="hidden"><div class="page-heading"><div><h1>Мои сообщения</h1><p>Личные разговоры</p></div></div><div id="messagesAuthNotice" class="auth-notice"><b>Личные сообщения доступны участникам</b><span>Войдите через GitHub, чтобы написать владельцу Society или продолжить переписку.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="messagesLayout" class="messages-layout hidden"><div id="dialogs" class="dialogs"><div class="empty-state">Войдите через GitHub, чтобы открыть сообщения.</div></div><div class="chat-panel"><div id="chatHeader" class="chat-header">Выберите диалог</div><div id="chatMessages" class="chat-messages"></div><form id="messageForm" class="message-form"><input id="messageText" maxlength="3000" placeholder="Написать сообщение..." disabled><button class="blue-button" disabled>Отправить</button></form></div></div></section>
+  <section id="savedView" class="hidden"><div class="page-heading"><div><h1>Закладки</h1><p>Сохранённые публикации</p></div></div><div id="savedAuthNotice" class="auth-notice"><b>Ваши закладки</b><span>Войдите через GitHub, чтобы сохранять интересные публикации и просматривать их здесь.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="savedPosts" class="posts"></div></section>
 </main>
 <aside class="right-column">
   <div class="right-card"><b>Навигация</b><a href="#" data-view="wall">Моя страница</a><a href="#" data-view="feed">Новости</a><a href="#" data-view="messages">Сообщения</a><a href="#" data-view="saved">Закладки</a></div>
