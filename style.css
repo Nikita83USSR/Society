@@ -359,3 +359,6 @@ body::after{
     linear-gradient(30deg,transparent 0 68%,rgba(255,255,255,.48) 68.1% 68.6%,transparent 68.7% 100%),
     radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.38),transparent 58%);
 }
+
+/* Keep the architectural planes completely still */
+body::before{animation:none!important;background-size:cover!important;background-position:center!important}
