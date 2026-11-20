@@ -386,3 +386,22 @@ body::before{
 @media(prefers-reduced-motion:reduce){
   body::before{animation:none!important}
 }
+
+
+/* Fix background stacking: keep the architectural scene visible behind page content */
+html{background:#edf0f3!important}
+body{background:transparent!important;position:relative}
+body::before{
+  z-index:-1!important;
+  inset:-8%!important;
+  background:
+    linear-gradient(128deg,transparent 0 13%,rgba(255,255,255,.82) 13.1% 21%,transparent 21.1% 100%),
+    linear-gradient(48deg,transparent 0 54%,rgba(173,185,199,.32) 54.1% 64%,transparent 64.1% 100%),
+    linear-gradient(145deg,transparent 0 70%,rgba(255,255,255,.72) 70.1% 79%,transparent 79.1% 100%),
+    radial-gradient(ellipse at 12% 20%,rgba(255,255,255,.98),transparent 36%),
+    radial-gradient(ellipse at 88% 78%,rgba(193,204,216,.62),transparent 43%),
+    linear-gradient(135deg,#dfe5eb 0%,#f7f8fa 47%,#dce3eb 100%)!important;
+  background-size:cover!important;
+  background-position:center!important;
+}
+body::after{z-index:-1!important;opacity:.72}
