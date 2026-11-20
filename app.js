@@ -8,6 +8,11 @@ const configured = !!(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY);
 const db = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}) : null;
 let session=null, me=null, ownerProfile=null, selectedFiles=[], cachedPosts=[], githubFollowing=null;
 const GITHUB_FOLLOW_TOKEN_KEY="society_github_follow_token";
+if(db)db.auth.onAuthStateChange((_event,nextSession)=>{
+  if(nextSession?.provider_token){try{sessionStorage.setItem(GITHUB_FOLLOW_TOKEN_KEY,nextSession.provider_token);}catch(e){console.warn("GitHub provider token storage:",e);}}
+  if(_event==="SIGNED_OUT"){try{sessionStorage.removeItem(GITHUB_FOLLOW_TOKEN_KEY);}catch{}}
+  setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();await refreshGitHubFollowWidget();},0);
+});
 const fallbackAvatar="https://github.com/Nikita83USSR.png";
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function toast(s){const el=$("#toast");el.textContent=s;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),3200);}
@@ -356,7 +361,7 @@ async function init(){
   loadProjects();
   if(!configured){$("#setupNotice").classList.remove("hidden");return;}
   recordVisit();
-  db.auth.onAuthStateChange((_event,nextSession)=>{if(nextSession?.provider_token){try{sessionStorage.setItem(GITHUB_FOLLOW_TOKEN_KEY,nextSession.provider_token);}catch(e){console.warn("GitHub provider token storage:",e);}}if(_event==="SIGNED_OUT"){try{sessionStorage.removeItem(GITHUB_FOLLOW_TOKEN_KEY);}catch{}}setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();await refreshGitHubFollowWidget();},0);});
+  
   const {data:{session:current},error}=await db.auth.getSession();
   if(error&&isExpiredAuthError(error)){
     console.warn("Stored Supabase session has expired; clearing local session.",error.message);
