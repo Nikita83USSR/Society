@@ -114,7 +114,7 @@ drop policy if exists "Signed-in users publish" on public.posts;
 create policy "Signed-in users publish" on public.posts for insert to authenticated with check (
   author_id = auth.uid() and (wall_owner_id is null or wall_owner_id = auth.uid() or exists (select 1 from public.profiles owner_profile where owner_profile.id = wall_owner_id and owner_profile.github_login = 'Nikita83USSR'))
 );
-drop policy if exists "Authors or wall owner delete posts" on public.posts;
+drop policy if exists "Owner edits own posts" on public.posts;\ncreate policy "Owner edits own posts" on public.posts for update to authenticated using (author_id = auth.uid() and is_society_owner()) with check (author_id = auth.uid() and is_society_owner());\n\ndrop policy if exists "Authors or wall owner delete posts" on public.posts;
 create policy "Authors or wall owner delete posts" on public.posts for delete to authenticated using (
   author_id = auth.uid() or (wall_owner_id is not null and exists (
     select 1 from public.profiles p where p.id = wall_owner_id and p.github_login = 'Nikita83USSR' and is_society_owner()
