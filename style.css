@@ -284,3 +284,8 @@ body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none
  .projects-list{max-height:none!important;overflow-x:auto!important;overflow-y:hidden!important}
  .mobile-menu-backdrop{touch-action:none}
 }
+
+/* Vaporwave logo and matching favicon */
+.brand{width:165px!important;display:flex;align-items:center}
+.brand-logo{display:block;width:154px;height:auto;max-height:36px;object-fit:contain}
+@media(max-width:560px){.brand{width:auto!important}.brand-logo{width:148px;max-height:34px}}
