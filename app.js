@@ -253,7 +253,7 @@ async function publish(e){
     const images=await uploadImages();
     const {error}=await db.from("posts").insert({author_id:session.user.id,wall_owner_id:null,body,link_url:null,image_urls:images});
     if(error)throw error;
-    selectedFiles.forEach(file=>{});selectedFiles=[];$("#postText").value="";$("#imageInput").value="";updateComposerImagePreview();
+    selectedFiles=[];$("#postText").value="";$("#imageInput").value="";updateComposerImagePreview();
     await loadPosts();toast("Запись опубликована.");
   }catch(err){console.error("Blog publish failed:",err);toast("Ошибка публикации: "+(err?.message||String(err)));}
   finally{button.textContent="Опубликовать";button.disabled=!($("#postText").value.trim()||selectedFiles.length);}
