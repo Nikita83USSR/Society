@@ -15,6 +15,7 @@
     <button class="nav" data-view="feed">▤ <span>Новости</span></button>
     <button class="nav" data-view="messages">✉ <span>Мои сообщения</span><i id="unreadBadge" class="unread hidden">0</i></button>
     <button class="nav" data-view="saved">☆ <span>Закладки</span></button>
+    <button class="nav" data-view="users">♙ <span>Пользователи</span></button>
   </nav>
   <div class="side-divider"></div>
   <a class="side-link" href="https://github.com/Nikita83USSR/Society" target="_blank" rel="noopener">⌘ Проект на GitHub</a>
@@ -24,7 +25,7 @@
   <section id="wallView">
     <div class="page-heading"><div><h1 id="pageTitle">Моя страница</h1><p>Твоя территория в Society</p></div><span class="online-dot">● онлайн</span></div>
     <div class="profile-cover"><div class="cover-caption">SOCIETY COMMUNITY</div></div>
-    <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="assets/default-avatar.svg" alt=""><div class="profile-data"><h2 id="wallName">Гость</h2><div id="wallHandle" class="muted">@гость</div><div id="wallBio" class="profile-bio">Социальная сеть на базе GitHub</div></div><a id="githubProfile" class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
+    <div class="profile-summary"><img id="wallAvatar" class="wall-avatar" src="assets/default-avatar.svg" alt=""><div class="profile-data"><h2 id="wallName">Гость</h2><div id="wallHandle" class="muted">@гость</div><div id="wallRole" class="admin-role hidden">Администратор Society</div><div id="wallBio" class="profile-bio">Социальная сеть на базе GitHub</div></div><a id="githubProfile" class="small-blue-button" href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub ↗</a></div>
     <div class="profile-tabs"><button class="tab active">Стена</button><button class="tab" data-view="feed">Новости</button><button class="tab" data-view="messages">Сообщения</button></div>
     <form id="postForm" class="composer hidden">
       <div class="composer-title"><b>Что у вас нового?</b><span id="composerHint">Запись на стене</span></div>
@@ -40,9 +41,10 @@
   <section id="feedView" class="hidden"><div class="page-heading"><div><h1>Новости</h1><p>Последние публикации Society</p></div></div><div id="feedPosts" class="posts"></div></section>
   <section id="messagesView" class="hidden"><div class="page-heading"><div><h1>Мои сообщения</h1><p>Личные разговоры</p></div></div><div id="messagesAuthNotice" class="auth-notice"><b>Личные сообщения доступны участникам</b><span>Войдите через GitHub, чтобы написать владельцу Society или продолжить переписку.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="messagesLayout" class="messages-layout hidden"><div id="dialogs" class="dialogs"><div class="empty-state">Войдите через GitHub, чтобы открыть сообщения.</div></div><div class="chat-panel"><div id="chatHeader" class="chat-header">Выберите диалог</div><div id="chatMessages" class="chat-messages"></div><form id="messageForm" class="message-form"><input id="messageText" maxlength="3000" placeholder="Написать сообщение..." disabled><button class="blue-button" disabled>Отправить</button></form></div></div></section>
   <section id="savedView" class="hidden"><div class="page-heading"><div><h1>Закладки</h1><p>Сохранённые публикации</p></div></div><div id="savedAuthNotice" class="auth-notice"><b>Ваши закладки</b><span>Войдите через GitHub, чтобы сохранять интересные публикации и просматривать их здесь.</span><button type="button" class="login-button" data-login>Войти через GitHub</button></div><div id="savedPosts" class="posts"></div></section>
+  <section id="usersView" class="hidden"><div class="page-heading"><div><h1>Пользователи Society</h1><p>Участники, которые хотя бы однажды входили в сеть</p></div><span id="usersCount" class="muted"></span></div><div id="usersList" class="users-list"></div></section>
 </main>
 <aside class="right-column">
-  <div class="right-card"><b>Навигация</b><a href="#" data-view="wall">Моя страница</a><a href="#" data-view="feed">Новости</a><a href="#" data-view="messages">Сообщения</a><a href="#" data-view="saved">Закладки</a></div>
+  <div class="right-card"><b>Навигация</b><a href="#" data-view="wall">Моя страница</a><a href="#" data-view="feed">Новости</a><a href="#" data-view="messages">Сообщения</a><a href="#" data-view="saved">Закладки</a><a href="#" data-view="users">Пользователи</a></div>
   <div class="right-card"><b>О Society</b><p>Независимая социальная площадка. Старый добрый формат социальных сетей — с людьми, записями и разговорами.</p><div class="right-tags"><span>Сообщество</span><span>Общение</span><span>GitHub</span></div></div>
   <div class="right-card"><b>Правила площадки</b><p>Уважайте собеседников. Не публикуйте чужие личные данные и запрещённый контент.</p></div>
   <div class="right-footer">Society · ранняя версия<br><a href="https://github.com/Nikita83USSR/Society">Исходный код</a></div>
