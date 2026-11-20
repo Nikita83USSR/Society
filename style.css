@@ -362,3 +362,27 @@ body::after{
 
 /* Keep the architectural planes completely still */
 body::before{animation:none!important;background-size:cover!important;background-position:center!important}
+
+
+/* Readable frosted-glass publication cards + very slow fixed backdrop drift */
+.blog-layout .post{
+  background:rgba(255,255,255,.66)!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  box-shadow:0 8px 26px rgba(76,91,112,.075),inset 0 1px 0 rgba(255,255,255,.62);
+  backdrop-filter:blur(16px) saturate(125%);
+  -webkit-backdrop-filter:blur(16px) saturate(125%);
+}
+.blog-layout .post-body{color:#292d3b}
+.blog-layout .post-meta{color:#737d8b}
+.blog-layout .post::selection,.blog-layout .post *::selection{background:rgba(115,130,190,.22)}
+body::before{
+  animation:architecture-drift 180s ease-in-out infinite alternate!important;
+  will-change:transform;
+}
+@keyframes architecture-drift{
+  from{transform:translate3d(0,0,0) scale(1.015)}
+  to{transform:translate3d(-1.1%,.7%,0) scale(1.035)}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before{animation:none!important}
+}
