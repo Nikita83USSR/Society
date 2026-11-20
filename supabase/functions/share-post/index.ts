@@ -10,7 +10,8 @@ Deno.serve(async (req) => {
   const target = SITE + (id ? "?post="+encodeURIComponent(id)+"#post-"+encodeURIComponent(id) : "");
   if (!/^[0-9a-f-]{36}$/i.test(id)) return Response.redirect(target, 302);
   const base = Deno.env.get("SUPABASE_URL")!;
-  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const secretKeys = Deno.env.get("SUPABASE_SECRET_KEYS");
+  const key = secretKeys ? JSON.parse(secretKeys).default : Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!key) return new Response("Server configuration error", {status:500});
   const api = new URL(base + "/rest/v1/posts");
   api.searchParams.set("id","eq."+id);
