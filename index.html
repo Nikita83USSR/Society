@@ -7,10 +7,11 @@
 </head>
 <body>
 <div class="topbar"><div class="topbar-inner">
-  <a class="brand" href="#"><span class="brand-mark">N</span> Блог</a>
+  <button id="mobileMenuToggle" class="mobile-menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false">☰</button><a class="brand" href="#"><span class="brand-mark">N</span> Блог</a>
   <label class="top-search">⌕ <input id="searchInput" placeholder="Поиск по записям"></label>
   <div class="top-user"><span id="topUserName">Гость · чтение</span><img id="topAvatar" class="tiny-avatar" src="https://github.com/Nikita83USSR.png" alt=""></div>
 </div></div>
+<div id="mobileMenuBackdrop" class="mobile-menu-backdrop"></div>
 <div class="layout blog-layout">
 <aside class="left-column">
   <div class="side-profile"><img id="sideAvatar" class="profile-avatar" src="https://github.com/Nikita83USSR.png" alt=""><b id="sideName">Никита</b><span class="blog-author-label">Автор блога</span><a href="https://github.com/Nikita83USSR" target="_blank" rel="noopener">GitHub профиль</a></div>
@@ -45,4 +46,7 @@
 <div id="setupNotice" class="setup-notice hidden">Не удалось подключиться к Supabase. Проверьте настройки проекта в app.js.</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<script>
+(function(){const btn=document.getElementById("mobileMenuToggle"),back=document.getElementById("mobileMenuBackdrop");function toggle(open){document.body.classList.toggle("mobile-menu-open",open);btn.setAttribute("aria-expanded",String(open));btn.textContent=open?"✕":"☰"}btn.addEventListener("click",()=>toggle(!document.body.classList.contains("mobile-menu-open")));back.addEventListener("click",()=>toggle(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")toggle(false)});document.querySelectorAll(".left-column a,.left-column button").forEach(el=>el.addEventListener("click",e=>{if(e.target.closest("#mobileMenuToggle"))return;toggle(false)}));})();
+</script>
 </body></html>
