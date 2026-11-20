@@ -79,6 +79,13 @@ create table if not exists public.post_likes (
   primary key(post_id, user_id)
 );
 
+create table if not exists public.post_bookmarks (
+  post_id uuid not null references public.posts(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key(post_id, user_id)
+);
+
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
   sender_id uuid not null references public.profiles(id) on delete cascade,
@@ -94,6 +101,7 @@ alter table public.posts enable row level security;
 alter table public.comments enable row level security;
 alter table public.post_likes enable row level security;
 alter table public.messages enable row level security;
+alter table public.post_bookmarks enable row level security;
 
 drop policy if exists "Profiles are public" on public.profiles;
 create policy "Profiles are public" on public.profiles for select using (true);
@@ -104,7 +112,7 @@ drop policy if exists "Posts are public" on public.posts;
 create policy "Posts are public" on public.posts for select using (true);
 drop policy if exists "Signed-in users publish" on public.posts;
 create policy "Signed-in users publish" on public.posts for insert to authenticated with check (
-  author_id = auth.uid() and (wall_owner_id is null or is_society_owner() or wall_owner_id = auth.uid())
+  author_id = auth.uid() and (wall_owner_id is null or wall_owner_id = auth.uid() or exists (select 1 from public.profiles owner_profile where owner_profile.id = wall_owner_id and owner_profile.github_login = 'Nikita83USSR'))
 );
 drop policy if exists "Authors or wall owner delete posts" on public.posts;
 create policy "Authors or wall owner delete posts" on public.posts for delete to authenticated using (
@@ -122,6 +130,11 @@ drop policy if exists "Likes are public" on public.post_likes;
 create policy "Likes are public" on public.post_likes for select using (true);
 drop policy if exists "Users manage own likes" on public.post_likes;
 create policy "Users manage own likes" on public.post_likes for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists "Bookmarks are visible to their owner" on public.post_bookmarks;
+create policy "Bookmarks are visible to their owner" on public.post_bookmarks for select to authenticated using (user_id = auth.uid());
+drop policy if exists "Users manage own bookmarks" on public.post_bookmarks;
+create policy "Users manage own bookmarks" on public.post_bookmarks for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 drop policy if exists "Participants read messages" on public.messages;
 create policy "Participants read messages" on public.messages for select to authenticated using (sender_id = auth.uid() or recipient_id = auth.uid());
