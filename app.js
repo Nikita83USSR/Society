@@ -36,6 +36,7 @@ async function syncProfile(){
   me=p;
   if(isOwner())ownerProfile=p;
   updateIdentity();
+  await loadAnalytics();
 }
 async function loadBanner(){
   const {data,error}=await db.from("site_settings").select("value").eq("key","banner_url").maybeSingle();
@@ -185,16 +186,66 @@ async function savePostEdit(e){
   const post=cachedPosts.find(p=>String(p.id)===article.dataset.post);if(post)post.body=body;
   renderPosts();toast("Публикация обновлена.");
 }
+
+// Lightweight first-party analytics: no cookies, IP collection, fingerprinting or third-party trackers.
+function analyticsSource(){
+  const host=(document.referrer?new URL(document.referrer).hostname:"").toLowerCase();
+  if(!host)return "direct";
+  if(host.includes("vk.com")||host.includes("vkontakte"))return "vk";
+  if(host==="t.me"||host.endsWith(".telegram.org")||host==="telegram.org")return "telegram";
+  if(host==="max.ru"||host.endsWith(".max.ru"))return "max";
+  if(host.includes("twitter.com")||host==="x.com")return "x";
+  if(host.includes("instagram.com"))return "instagram";
+  if(/google\.|bing\.|yandex\.|duckduckgo\./.test(host))return "search";
+  return "other";
+}
+function analyticsDevice(){
+  const ua=navigator.userAgent||"";
+  if(/ipad|tablet|playbook|silk/i.test(ua))return "tablet";
+  if(/mobi|iphone|ipod|android/i.test(ua))return "mobile";
+  return "desktop";
+}
+async function recordVisit(){
+  if(!db)return;
+  try{
+    const key="society_visit_v1:"+location.pathname+":"+new URLSearchParams(location.search).get("post");
+    if(sessionStorage.getItem(key))return;
+    sessionStorage.setItem(key,"1");
+    const postId=new URLSearchParams(location.search).get("post");
+    const validPostId=postId&&/^[0-9a-f-]{36}$/i.test(postId)?postId:null;
+    const {error}=await db.from("site_analytics").insert({
+      page_path:location.pathname,
+      post_id:validPostId,
+      source:analyticsSource(),
+      device:analyticsDevice()
+    });
+    if(error)console.warn("Analytics:",error.message);
+  }catch(error){console.warn("Analytics unavailable:",error);}
+}
+async function loadAnalytics(){
+  const panel=$("#ownerAnalytics");
+  if(!panel||!isOwner())return;
+  const {data,error}=await db.from("site_analytics").select("created_at,source,device").order("created_at",{ascending:false}).limit(5000);
+  if(error){panel.innerHTML='<b>Статистика</b><small>Не удалось загрузить. Проверь SQL-права.</small>';return;}
+  const rows=data||[],today=new Date();today.setHours(0,0,0,0);
+  const todayCount=rows.filter(x=>new Date(x.created_at)>=today).length;
+  const counts={};rows.forEach(x=>counts[x.source]=(counts[x.source]||0)+1);
+  const names={direct:"Прямые",vk:"ВКонтакте",telegram:"Telegram",max:"MAX",x:"X",instagram:"Instagram",search:"Поиск",other:"Другие"};
+  const sources=Object.entries(counts).sort((x,y)=>y[1]-x[1]).slice(0,5).map(([k,v])=>'<div class="analytics-line"><span>'+names[k]+'</span><b>'+v+'</b></div>').join("");
+  panel.innerHTML='<b>Статистика посещений</b><div class="analytics-numbers"><div><strong>'+rows.length+'</strong><small>Всего заходов</small></div><div><strong>'+todayCount+'</strong><small>Сегодня</small></div></div><div class="analytics-sources">'+(sources||'<small>Пока нет посещений</small>')+'</div><small class="analytics-note">Обезличенный счётчик · без IP и cookies</small>';
+}
+
 async function init(){
   $("#footerYear").textContent=new Date().getFullYear();
   loadProjects();
   if(!configured){$("#setupNotice").classList.remove("hidden");return;}
+  recordVisit();
   db.auth.onAuthStateChange((_event,nextSession)=>{setTimeout(async()=>{session=nextSession;me=session?profileOf(session.user):null;if(session)await syncProfile();updateIdentity();await loadPosts();},0);});
   const {data:{session:current},error}=await db.auth.getSession();
   if(error)console.warn("Session restore:",error.message);
   session=current;me=session?profileOf(session.user):null;
   if(session)await syncProfile();
-  await loadOwner();updateIdentity();await loadPosts();
+  await loadOwner();updateIdentity();await loadPosts();await loadAnalytics();
 }
 $("#loginButton").addEventListener("click",login);
 $("#logoutButton").addEventListener("click",logout);

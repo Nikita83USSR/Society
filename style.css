@@ -310,3 +310,13 @@ body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none
 .composer textarea{min-height:190px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .post-edit-form textarea{min-height:220px;line-height:1.65;white-space:pre-wrap}
 .post-body{white-space:pre-wrap;overflow:visible;display:block;-webkit-line-clamp:unset;max-height:none}
+
+.owner-analytics{display:none}
+body:has(#ownerAnalytics:not(.hidden)) .owner-analytics{display:block}
+.analytics-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.analytics-numbers>div{padding:9px;background:#f3f5f8;border:1px solid var(--line)}
+.analytics-numbers strong{display:block;font-size:21px;color:var(--blue);font-weight:600}
+.analytics-numbers small,.analytics-note{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.analytics-line{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf0f2;font-size:11px}
+.analytics-line b{color:var(--blue)}
+.analytics-note{margin-top:9px;line-height:1.4}
