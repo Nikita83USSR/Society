@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="600" viewBox="0 0 1800 600">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#100d2e"/><stop offset=".48" stop-color="#48205e"/><stop offset=".76" stop-color="#f04483"/><stop offset="1" stop-color="#ff9b68"/></linearGradient>
+ <linearGradient id="sun" x2="0" y2="1"><stop stop-color="#fff5ad"/><stop offset=".52" stop-color="#ff9b75"/><stop offset="1" stop-color="#f34a91"/></linearGradient>
+ <linearGradient id="ground" x2="0" y2="1"><stop stop-color="#27113f"/><stop offset="1" stop-color="#090b20"/></linearGradient>
+ <linearGradient id="neon" x2="0" y2="1"><stop stop-color="#fff8ee"/><stop offset=".5" stop-color="#ffb7e8"/><stop offset="1" stop-color="#9ef7ff"/></linearGradient>
+ <filter id="glow" x="-50%" y="-80%" width="200%" height="260%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <clipPath id="sunclip"><circle cx="900" cy="280" r="205"/></clipPath>
+</defs>
+<rect width="1800" height="600" fill="url(#sky)"/>
+<circle cx="900" cy="280" r="205" fill="url(#sun)" filter="url(#glow)"/>
+<g clip-path="url(#sunclip)" fill="#522052" opacity=".85">
+ <rect x="680" y="285" width="440" height="14"/><rect x="680" y="322" width="440" height="12"/><rect x="680" y="356" width="440" height="10"/><rect x="680" y="387" width="440" height="9"/><rect x="680" y="414" width="440" height="8"/><rect x="680" y="438" width="440" height="7"/>
+</g>
+<g fill="#130f2c">
+ <path d="M0 360h95v-80h50v45h44V245h55v115h52v-60h56v60h45V220h70v140h48v-82h62v82h70v-45h48v45h75v-75h54v75h72v-40h44v40h65v-95h58v95h63v-60h54v60h62v-110h62v110h64v-55h65v55h80v240H0z"/>
+ <path d="M0 430h1800v170H0z" fill="url(#ground)"/>
+</g>
+<g fill="#ff77bd" opacity=".65">
+ <path d="M120 320h4v8h-4zm48-40h4v8h-4zm170 42h4v8h-4zm150-68h4v8h-4zm110 75h4v8h-4zm830-20h4v8h-4zm130-60h4v8h-4zm130 82h4v8h-4z"/>
+</g>
+<path d="M0 600L900 390l900 210" fill="none" stroke="#ff4fa5" stroke-width="3" opacity=".9"/>
+<path d="M0 600L900 390M180 600l720-210M360 600l540-210M540 600l360-210M720 600l180-210M1080 600L900 390M1260 600L900 390M1440 600L900 390M1620 600L900 390" stroke="#f34da5" stroke-width="2" opacity=".65"/>
+<g stroke="#35dff8" stroke-width="2" opacity=".7">
+ <path d="M0 440h1800M0 470h1800M0 505h1800M0 545h1800M0 585h1800"/>
+</g>
+<g filter="url(#glow)" text-anchor="middle">
+ <text x="900" y="330" font-family="Georgia, 'Times New Roman', serif" font-size="112" font-style="italic" font-weight="bold" letter-spacing="2" fill="url(#neon)" stroke="#7b3c9d" stroke-width="2">Никита Маркин</text>
+ <text x="900" y="374" font-family="Arial, sans-serif" font-size="19" letter-spacing="12" fill="#fff0fa" opacity=".9">PERSONAL BLOG</text>
+</g>
+<path d="M80 80h240M1480 80h240" stroke="#67e8ff" stroke-width="2" opacity=".5"/>
+<path d="M80 80v42M1720 80v42" stroke="#67e8ff" stroke-width="2" opacity=".5"/>
+</svg>
