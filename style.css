@@ -163,4 +163,4 @@ body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none
 /* Transparent glass posts, slower ambient background, banner-shaped avatar */
 .blog-layout .post{background:rgba(255,255,255,.25)!important;backdrop-filter:blur(20px) saturate(155%);-webkit-backdrop-filter:blur(20px) saturate(155%)}
 .blog-layout .composer,.blog-layout .auth-notice,.blog-layout .empty-state{background:rgba(255,255,255,.31)!important;backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%)}
-.blog-layout .profile-avatar{border-radius:10px!important;aspect-ratio:3/1!important;object-fit:cover!important;width:100%!important;height:auto!important}
+.blog-layout .profile-avatar{border-radius:10px!important;aspect-ratio:1/1!important;object-fit:cover!important;width:100%!important;height:auto!important}
